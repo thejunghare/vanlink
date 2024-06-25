@@ -1,7 +1,9 @@
 // src/screens/LoginScreen.js
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button } from 'react-native';
-import { supabase } from '../lib/supabase';;
+import { View, } from 'react-native';
+import { supabase } from '../lib/supabase';
+import { Text, TextInput, Button } from 'react-native-paper';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Login = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -15,13 +17,39 @@ const Login = ({ navigation }) => {
   };
 
   return (
-    <View>
-      <Text>Login Screen</Text>
-      <TextInput placeholder="Email" value={email} onChangeText={setEmail} />
-      <TextInput placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry />
-      <Button title="Login" onPress={handleLogin} />
-      <Button title="Go to Signup" onPress={() => navigation.navigate('Signup')} />
-    </View>
+    <SafeAreaView className='h-screen w-4/5 m-auto flex flex-col justify-around'>
+        <View className=''>
+          <Text variant="headlineLarge" className='text-center'>Welcome back!</Text>
+          <Text variant="titleSmall" className='text-center'>Log in to your account</Text>
+        </View>
+
+        <View>
+          <TextInput
+            label="Email"
+            value={email}
+            onChangeText={setEmail}
+            placeholder='Username'
+            left={<TextInput.Icon icon="account" />}
+          />
+
+          <TextInput
+            label="Password"
+            value={password}
+            onChangeText={setPassword}
+            placeholder='Password'
+            secureTextEntry
+            left={<TextInput.Icon icon="eye" />}
+          />
+        </View>
+
+        <View>
+          <Button icon="login" mode="contained" onPress={handleLogin}>
+            Log In
+          </Button>
+        </View>
+
+        {/* <Button title="Go to Signup" onPress={() => navigation.navigate('Signup')} /> */}
+    </SafeAreaView>
   );
 };
 

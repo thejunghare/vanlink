@@ -1,4 +1,3 @@
-// src/screens/LoginScreen.js
 import React, { useState } from 'react';
 import { View, } from 'react-native';
 import { supabase } from '../lib/supabase';
@@ -17,7 +16,7 @@ const Login = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView className='h-screen w-4/5 m-auto flex flex-col justify-around'>
+    <SafeAreaView className='h-screen w-11/12 m-auto flex flex-col justify-around'>
         <View className=''>
           <Text variant="headlineLarge" className='text-center'>Welcome back!</Text>
           <Text variant="titleSmall" className='text-center'>Log in to your account</Text>

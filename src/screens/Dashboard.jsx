@@ -11,13 +11,13 @@ const Dashboard = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView className=''>
+    <View className='flex-1'>
       <View>
         <Searchbar
           placeholder="Search"
           onChangeText={setSearchQuery}
           value={searchQuery}
-          className='mx-5 mb-0'
+          className='mx-5 mb-0 mt-5'
         />
         <View className='w-screen my-5 flex flex-row items-center justify-around'>
           <Button icon="arrow-top-right" mode="outlined" onPress={() => console.log('Pressed')}>
@@ -39,7 +39,7 @@ const Dashboard = ({ navigation }) => {
           <IconButton
             icon="bus"
             size={50}
-            onPress={() => navigation.navigate('Vehicle Details')}
+            onPress={() => navigation.navigate('Vehicle List')}
             mode='contained'
             accessibilityLabel='Vehicle'
           />
@@ -86,7 +86,7 @@ const Dashboard = ({ navigation }) => {
         {/*  <Button title="Logout" mode="outlined" onPress={handleLogout} >   Logout
       </Button> */}
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 

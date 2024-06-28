@@ -46,7 +46,7 @@ const Dashboard = ({ navigation }) => {
           <IconButton
             icon="account-outline"
             size={50}
-            onPress={() => console.log('Pressed')}
+             onPress={() => navigation.navigate('Driver List')}
             mode='contained'
             accessibilityLabel='Driver'
           />

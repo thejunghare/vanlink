@@ -1,7 +1,6 @@
 import React from 'react';
 import {View} from 'react-native';
-import {Text, Button, DataTable, IconButton, TextInput} from 'react-native-paper';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import {Button, TextInput} from 'react-native-paper';
 
 const AddVehicle = () => {
     return (

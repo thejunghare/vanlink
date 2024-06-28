@@ -1,7 +1,5 @@
 import React from 'react';
 import {View, Text} from 'react-native';
-import {List} from 'react-native-paper';
-import {SafeAreaView} from 'react-native-safe-area-context';
 
 const VehicleDetails = () => {
     return (

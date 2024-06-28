@@ -63,7 +63,7 @@ const Dashboard = ({navigation}) => {
                     <IconButton
                         icon="account-multiple-outline"
                         size={50}
-                        onPress={() => console.log('Pressed')}
+                        onPress={() => navigation.navigate('Student List')}
                         mode='contained'
                         accessibilityLabel='Student'
                     />

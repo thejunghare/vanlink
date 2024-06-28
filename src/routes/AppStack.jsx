@@ -32,6 +32,10 @@ const AppStack = () => {
             <Stack.Screen name="Add Driver" component={AddDriver}/>
             <Stack.Screen name="Driver Details" component={DriverDetails}/>
 
+            <Stack.Screen name="School List" component={SchoolList}/>
+            <Stack.Screen name="Add School" component={AddSchool}/>
+            <Stack.Screen name="School Details" component={SchoolDetails}/>
+
             <Stack.Screen name="Student List" component={StudentList}/>
             <Stack.Screen name="Add Student" component={AddStudent}/>
             <Stack.Screen name="Student Details" component={StudentDetails}/>

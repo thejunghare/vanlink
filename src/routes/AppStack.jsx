@@ -1,12 +1,18 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import DrawerNavigator from './DrawerNavigator';
+
 import VehicleList from '../screens/Vehicle/VehicleList';
 import AddVehicle from '../screens/Vehicle/AddVehicle';
 import VehicleDetails from '../screens/Vehicle/VehicleDetails';
+
 import DriverList from '../screens/Driver/DriverList';
 import AddDriver from '../screens/Driver/AddDriver';
 import DriverDetails from '../screens/Driver/DriverDetails';
+
+import SchoolList from '../screens/School/SchoolList';
+import AddSchool from '../screens/School/AddSchool';
+import SchoolDetails from '../screens/School/SchoolDetails';
 
 const Stack = createStackNavigator();
 
@@ -17,9 +23,14 @@ const AppStack = () => {
       <Stack.Screen name="Vehicle List" component={VehicleList} />
       <Stack.Screen name="Add Vehicle" component={AddVehicle} />
       <Stack.Screen name="Vehicle Details" component={VehicleDetails} />
+
       <Stack.Screen name="Driver List" component={DriverList} />
       <Stack.Screen name="Add Driver" component={AddDriver} />
       <Stack.Screen name="Driver Details" component={DriverDetails} />
+
+      <Stack.Screen name="School List" component={SchoolList} />
+      <Stack.Screen name="Add School" component={AddSchool} />
+      <Stack.Screen name="School Details" component={SchoolDetails} />
     </Stack.Navigator>
   );
 };

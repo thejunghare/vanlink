@@ -31,6 +31,8 @@ const Login = ({navigation}) => {
                             value={email}
                             onChangeText={setEmail}
                             placeholder='Username'
+                            textContentType="emailAddress"
+                            keyboardType="email-address"
                             left={<TextInput.Icon icon="account"/>}
                         />
 

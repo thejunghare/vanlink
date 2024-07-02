@@ -23,8 +23,25 @@ const Stack = createStackNavigator();
 const AppStack = () => {
     return (
         <Stack.Navigator>
-            <Stack.Screen name="Drawer" component={DrawerNavigator} options={{headerShown: false}}/>
-            <Stack.Screen name="Vehicle List" component={VehicleList}/>
+            <Stack.Screen
+                name="Drawer"
+                component={DrawerNavigator}
+                options={
+                    {
+                        headerShown: false,
+                        backgroundColor: '#324AB2'
+                    }
+                }
+            />
+            <Stack.Screen
+                name="Vehicle List"
+                component={VehicleList}
+                options={
+                    {
+                        backgroundColor: '#324AB2'
+                    }
+                }
+            />
             <Stack.Screen name="Add Vehicle" component={AddVehicle}/>
             <Stack.Screen name="Vehicle Details" component={VehicleDetails}/>
 

@@ -1,15 +1,15 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React from 'react';
 import { View } from 'react-native';
 import { Button, TextInput } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker';
 import supabase from '../../lib/supabase';
 
 const AddDriver = () => {
-    const [selectedLanguage, setSelectedLanguage] = useState();
-    const [profilesDetails, setProfilesDetails] = useState([]);
-    const [vehiclesDetails, setVehiclesDetails] = useState([]);
-    const [selectedProfile, setSelectedProfile] = useState('');
-    const [selectedVehicle, setSelectedVehicle] = useState('');
+    const [selectedLanguage, setSelectedLanguage] = React.useState();
+    const [profilesDetails, setProfilesDetails] = React.useState([]);
+    const [vehiclesDetails, setVehiclesDetails] = React.useState([]);
+    const [selectedProfile, setSelectedProfile] = React.useState('');
+    const [selectedVehicle, setSelectedVehicle] = React.useState('');
 
     const fetchDriverProfilesDetails = async () => {
         let { data: profiles, error } = await supabase
@@ -18,11 +18,11 @@ const AddDriver = () => {
             .eq('role_id', '837f9807-7b2a-4f21-b257-0beb22efb8dc');
 
         if (profiles) {
-            console.info('profiles fetched', profiles);
+            //console.info('profiles fetched', profiles);
             //profiles.forEach((profile) => console.log(profile.username));
             setProfilesDetails(profiles);
         } else {
-            console.error('error while fetching profiles', error);
+            //console.error('error while fetching profiles', error);
         }
     };
 
@@ -40,7 +40,7 @@ const AddDriver = () => {
 
     };
 
-    useEffect(() => {
+    React.useEffect(() => {
         fetchDriverProfilesDetails();
         fetchVehicleDetails();
     }, []);

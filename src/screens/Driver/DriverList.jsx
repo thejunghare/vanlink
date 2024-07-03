@@ -100,7 +100,7 @@ const DriverList = () => {
                             <IconButton
                                 icon='eye'
                                 onPress={() =>
-                                    navigation.navigate('Driver Details', { itemId: driver.id })
+                                    navigation.navigate('Driver Details', { driver})
                                 }
                             />
 

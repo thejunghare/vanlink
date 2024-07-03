@@ -68,8 +68,11 @@ const StudentList = () => {
                     <DataTable.Row key={student.id}>
                         <DataTable.Cell>{student.student_fees}</DataTable.Cell>
                         <DataTable.Cell numeric>
-                            <IconButton icon='eye'
-                                onPress={() => navigation.navigate('Student Details', student.id)} />
+                            <IconButton
+                                icon='eye'
+                                onPress={() =>
+                                    navigation.navigate('Student Details', { student })}
+                            />
                             <IconButton
                                 icon='pencil'
                                 onPress={() => navigation.navigate('Add Student', { itemKey: student.id })}

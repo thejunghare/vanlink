@@ -94,7 +94,7 @@ const SchoolList = () => {
                             <IconButton
                                 icon='eye'
                                 onPress={() =>
-                                    navigation.navigate('School Details', { itemId: school.id })
+                                    navigation.navigate('School Details', { school })
                                 }
                             />
 

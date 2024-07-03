@@ -101,7 +101,7 @@ const Vehicles = ({ route }) => {
               <IconButton
                 icon='eye'
                 onPress={() =>
-                  navigation.navigate('Vehicle Details', { itemId: vehicle.id })
+                  navigation.navigate('Vehicle Details', { vehicle })
                 }
               />
 

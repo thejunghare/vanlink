@@ -18,7 +18,7 @@ const SchoolList = () => {
         let { data: schools, error } = await supabase
             .from('schools')
             .select('*')
-            .eq('owner_id', '65f73490-b115-4a15-8410-24b8b09f0701'); // Todo: replace wiht actual ID
+            .eq('owner_id', 1); // Todo: replace wiht actual ID
 
         if (error) {
             //console.error("Error fetching schools:", error);
@@ -38,7 +38,7 @@ const SchoolList = () => {
         const { error } = await supabase
             .from('schools')
             .delete()
-            .eq('id', school_id); // Todo: replace wiht actual ID
+            .eq('id', 5); // Todo: replace wiht actual ID
 
         if (!error) {
             //console.info('School removed');

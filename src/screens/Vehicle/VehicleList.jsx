@@ -1,31 +1,29 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { View, RefreshControl, ScrollView, ToastAndroid } from "react-native";
-import { Text, Button, DataTable, IconButton, Searchbar, } from "react-native-paper";
-import { useNavigation } from "@react-navigation/native";
-import { supabase } from "../../lib/supabase";
+import React from 'react';
+import { View, RefreshControl, ScrollView, ToastAndroid } from 'react-native';
+import { Text, Button, DataTable, IconButton, Searchbar, } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
+import { supabase } from '../../lib/supabase';
 
 const Vehicles = ({ route }) => {
 
   const { userId } = route.params;
   const navigation = useNavigation();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [page, setPage] = useState(0);
-  const [numberOfItemsPerPageList] = useState([2, 3, 4]);
-  const [itemsPerPage, onItemsPerPageChange] = useState(numberOfItemsPerPageList[0]);
-  const [vehicles, setVehicles] = useState([]);
-  const [refreshing, setRefreshing] = useState();
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [page, setPage] = React.useState(0);
+  const [numberOfItemsPerPageList] = React.useState([2, 3, 4]);
+  const [itemsPerPage, onItemsPerPageChange] = React.useState(numberOfItemsPerPageList[0]);
+  const [vehicles, setVehicles] = React.useState([]);
+  const [refreshing, setRefreshing] = React.useState();
 
   const fetchVehicles = async () => {
-    const { data: { user },} = await supabase.auth.getUser();
-    console.info("loggedInUserId", user.id);
 
     const { data: vehicles, error: error } = await supabase
-      .from("vehicles")
-      .select("*")
-      .eq("owner_id", "65f73490-b115-4a15-8410-24b8b09f0701"); // Todo: Replace with actuall id
+      .from('vehicles')
+      .select('*')
+      .eq('owner_id', 1); // Todo: Replace with actuall id
 
     if (error) {
-      //console.error("Error fetching vehicles:", error);
+      //console.error('Error fetching vehicles:', error);
       return;
     }
 
@@ -36,15 +34,15 @@ const Vehicles = ({ route }) => {
     }
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
     fetchVehicles();
   }, []);
 
-  const deleteVehicle = async (vehicle_id) => {
+  const deleteVehicle = async (id) => {
     const { error } = await supabase
       .from('vehicles')
       .delete()
-      .eq('id', vehicle_id);
+      .eq('id', id);
 
     if (!error) {
       //console.info('Vehicle Deleted');
@@ -60,7 +58,7 @@ const Vehicles = ({ route }) => {
   const from = page * itemsPerPage;
   const to = Math.min((page + 1) * itemsPerPage, vehicles.length);
 
-  const onRefresh = useCallback(() => {
+  const onRefresh = React.useCallback(() => {
     setRefreshing(true);
     setTimeout(() => {
       fetchVehicles().finally(() => setRefreshing(false));
@@ -71,20 +69,20 @@ const Vehicles = ({ route }) => {
     setPage(0);
   }, [itemsPerPage]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     setPage(0);
   }, [itemsPerPage]);
 
   return (
     <ScrollView
-      className={"flex-1"}
+      className={'flex-1'}
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
     >
-      <View className={"m-3"}>
+      <View className={'m-3'}>
         <Searchbar
-          placeholder="Search Vehicle"
+          placeholder='Search Vehicle'
           onChangeText={setSearchQuery}
           value={searchQuery}
         />
@@ -101,21 +99,21 @@ const Vehicles = ({ route }) => {
             <DataTable.Cell>{vehicle.vehicle_number}</DataTable.Cell>
             <DataTable.Cell numeric>
               <IconButton
-                icon="eye"
+                icon='eye'
                 onPress={() =>
-                  navigation.navigate("Vehicle Details", { itemId: vehicle.id })
+                  navigation.navigate('Vehicle Details', { itemId: vehicle.id })
                 }
               />
 
               <IconButton
-                icon="pencil"
+                icon='pencil'
                 onPress={() =>
-                  navigation.navigate("Add Vehicle", { itemId: vehicle.id })
+                  navigation.navigate('Add Vehicle', { itemId: vehicle.id })
                 }
               />
 
               <IconButton
-                icon="delete"
+                icon='delete'
                 onPress={() => deleteVehicle(vehicle.id)}
               />
             </DataTable.Cell>
@@ -131,19 +129,19 @@ const Vehicles = ({ route }) => {
           numberOfItemsPerPage={itemsPerPage}
           onItemsPerPageChange={onItemsPerPageChange}
           showFastPaginationControls
-          selectPageDropdownLabel={"Rows per page"}
+          selectPageDropdownLabel={'Rows per page'}
         />
       </DataTable>
 
       {vehicles.length === 0 && (
-        <View className="m-5 flex items-center justify-center">
-          <Text variant="titleMedium" className="py-3">
+        <View className='m-5 flex items-center justify-center'>
+          <Text variant='titleMedium' className='py-3'>
             No data exists. Click to add!
           </Text>
           <Button
-            icon="plus"
-            mode="contained"
-            onPress={() => navigation.navigate("Add Vehicle")}
+            icon='plus'
+            mode='contained'
+            onPress={() => navigation.navigate('Add Vehicle')}
           >
             Add Vehicle
           </Button>

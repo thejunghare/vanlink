@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from "react";
-import { View, ToastAndroid } from "react-native";
-import { Button, TextInput } from "react-native-paper";
-import { supabase } from "../../lib/supabase";
+import React from 'react';
+import { View, ToastAndroid } from 'react-native';
+import { Button, TextInput } from 'react-native-paper';
+import { supabase } from '../../lib/supabase';
 
 const AddVehicle = () => {
-  const [vehicleNumber, setVehicleNumber] = useState('');
-  const [vehicleModel, setVehicleModel] = useState('');
-  const [vehicleCapacity, setVehicleCapacity] = useState('');
+  const [vehicleNumber, setVehicleNumber] = React.useState('');
+  const [vehicleModel, setVehicleModel] = React.useState('');
+  const [vehicleCapacity, setVehicleCapacity] = React.useState('');
 
-  useEffect(() => {
+  React.useEffect(() => {
 
 
   }, []);
@@ -21,7 +21,7 @@ const AddVehicle = () => {
 
   const insertVehicle = async () => {
     if (!vehicleNumber || !vehicleCapacity || !vehicleModel) {
-      console.error('All fildes are required unless marked optional')
+      //console.error('All fildes are required unless marked optional')
       ToastAndroid.show('All fildes are required unless marked optional !', ToastAndroid.SHORT);
     }
 
@@ -39,9 +39,9 @@ const AddVehicle = () => {
     const { error } = await supabase.from('vehicles').insert(
       {
         vehicle_number: vehicleNumber,
-        model: vehicleModel,
-        capacity: vehicleCapacity,
-        owner_id: '65f73490-b115-4a15-8410-24b8b09f0701', //Todo: replace with actually id
+        vehicle_modal: vehicleModel,
+        vehicle_capacity: vehicleCapacity,
+        owner_id: 1, //Todo: replace with actually id
       },
     );
 
@@ -57,7 +57,7 @@ const AddVehicle = () => {
 
   return (
     <View className={'px-3 flex-1'}>
-      <View className={""}>
+      <View>
         {/* vehicle number */}
         <TextInput
           label='Vechile Number'

@@ -1,45 +1,81 @@
 import React from 'react';
-import {View} from 'react-native';
-import {Text, Button, DataTable, IconButton, Searchbar} from 'react-native-paper';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {useNavigation} from '@react-navigation/native';
+import { View, RefreshControl, ScrollView, ToastAndroid } from 'react-native';
+import { Text, Button, DataTable, IconButton, Searchbar } from 'react-native-paper';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import { supabase } from '../../lib/supabase';
 
 const SchoolList = () => {
     const navigation = useNavigation();
     const [searchQuery, setSearchQuery] = React.useState('');
     const [page, setPage] = React.useState(0);
     const [numberOfItemsPerPageList] = React.useState([2, 3, 4]);
-    const [itemsPerPage, onItemsPerPageChange] = React.useState(
-        numberOfItemsPerPageList[0]
-    );
+    const [itemsPerPage, onItemsPerPageChange] = React.useState(numberOfItemsPerPageList[0]);
+    const [refreshing, setRefreshing] = React.useState();
+    const [schools, setSchools] = React.useState([]);
 
-    const [items] = React.useState([
-        {
-            key: 1,
-            name: 'St Marys',
-        },
-        {
-            key: 2,
-            name: 'KBP School',
-        },
-        {
-            key: 3,
-            name: 'Fr Agnel',
-        },
-    ]);
+    const fetchSchools = async () => {
+        let { data: schools, error } = await supabase
+            .from('schools')
+            .select('*')
+            .eq('owner_id', '65f73490-b115-4a15-8410-24b8b09f0701'); // Todo: replace wiht actual ID
 
-    const from = page * itemsPerPage;
-    const to = Math.min((page + 1) * itemsPerPage, items.length);
+        if (error) {
+            //console.error("Error fetching schools:", error);
+            ToastAndroid.show('error fetching schools !', ToastAndroid.SHORT);
+            return;
+        }
+
+        if (schools) {
+            //console.info('Schools fetched', schools);
+            setSchools(schools);
+            //schools.forEach((school) => console.log(school.school_name));
+            //schools.forEach((school) => console.log(school.id));
+        }
+    }
+
+    const deleteSchool = async (school_id) => {
+        const { error } = await supabase
+            .from('schools')
+            .delete()
+            .eq('id', school_id); // Todo: replace wiht actual ID
+
+        if (!error) {
+            //console.info('School removed');
+            ToastAndroid.show('Removed !', ToastAndroid.SHORT);
+            fetchSchools();
+        } else {
+            //console.info('Removed failed !');
+            ToastAndroid.show('Removed failed !', ToastAndroid.SHORT);
+        }
+    }
+
+    const onRefresh = React.useCallback(() => {
+        setRefreshing(true);
+        setTimeout(() => {
+            fetchSchools().finally(() => setRefreshing(false));
+        }, 2000);
+    });
 
     React.useEffect(() => {
+        fetchSchools();
         setPage(0);
     }, [itemsPerPage]);
 
+    const from = page * itemsPerPage;
+    const to = Math.min((page + 1) * itemsPerPage, schools.length);
+
     return (
-        <View className={'flex-1'}>
+        <ScrollView
+            ScrollView
+            className={'flex-1'}
+            refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+        >
             <View className={'m-3'}>
                 <Searchbar
-                    placeholder="Search School"
+                    placeholder='Search School'
                     onChangeText={setSearchQuery}
                     value={searchQuery}
                 />
@@ -51,26 +87,37 @@ const SchoolList = () => {
                     <DataTable.Title numeric>Actions</DataTable.Title>
                 </DataTable.Header>
 
-                {items.slice(from, to).map((item) => (
-                    <DataTable.Row key={item.key}>
-                        <DataTable.Cell>{item.name}</DataTable.Cell>
+                {schools.slice(from, to).map((school) => (
+                    <DataTable.Row key={school.id}>
+                        <DataTable.Cell>{school.school_name}</DataTable.Cell>
                         <DataTable.Cell numeric>
-                            <IconButton icon="eye"
-                                        onPress={() => navigation.navigate('School Details', item.key)}/>
                             <IconButton
-                                icon="pencil"
-                                onPress={() => navigation.navigate('Add Vehicle', {itemKey: item.key})}
+                                icon='eye'
+                                onPress={() =>
+                                    navigation.navigate('School Details', { itemId: school.id })
+                                }
                             />
-                            <IconButton icon="delete" onPress={() => console.log('Delete', item.key)}/>
+
+                            <IconButton
+                                icon='pencil'
+                                onPress={() =>
+                                    navigation.navigate('Add School', { itemId: school.id })
+                                }
+                            />
+
+                            <IconButton
+                                icon='delete'
+                                onPress={() => deleteSchool(school.id)}
+                            />
                         </DataTable.Cell>
                     </DataTable.Row>
                 ))}
 
                 <DataTable.Pagination
                     page={page}
-                    numberOfPages={Math.ceil(items.length / itemsPerPage)}
+                    numberOfPages={Math.ceil(schools.length / itemsPerPage)}
                     onPageChange={(page) => setPage(page)}
-                    label={`${from + 1}-${to} of ${items.length}`}
+                    label={`${from + 1}-${to} of ${schools.length}`}
                     numberOfItemsPerPageList={numberOfItemsPerPageList}
                     numberOfItemsPerPage={itemsPerPage}
                     onItemsPerPageChange={onItemsPerPageChange}
@@ -78,12 +125,15 @@ const SchoolList = () => {
                     selectPageDropdownLabel={'Rows per page'}
                 />
             </DataTable>
-            <View className='m-5 flex items-center justify-center'>
-                <Text variant='titleMedium' className='py-3'>No data exist click to add!</Text>
-                <Button icon='plus' mode='contained' onPress={() => navigation.navigate('Add School')}>Add
-                    School</Button>
-            </View>
-        </View>
+
+            {schools.length === 0 && (
+                <View className='m-5 flex items-center justify-center'>
+                    <Text variant='titleMedium' className='py-3'>No data exist click to add!</Text>
+                    <Button icon='plus' mode='contained' onPress={() => navigation.navigate('Add School')}>Add
+                        School</Button>
+                </View>
+            )}
+        </ScrollView>
     );
 };
 

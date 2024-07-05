@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { View, Image } from 'react-native';
 import { supabase } from '../lib/supabase';
 import { Searchbar, Button, Text, IconButton } from 'react-native-paper';
@@ -12,9 +12,9 @@ import maintenanceIcon from '../../assets/icons/maintenance.png';
 
 const Dashboard = ({ navigation }) => {
     const [searchQuery, setSearchQuery] = React.useState('');
-    const [isProfileComplete, setIsProfileComplete] = useState(true);
-    const [userRole, setUserRole] = useState(null);
-    const [userId, setUserId] = useState('');
+    const [isProfileComplete, setIsProfileComplete] = React.useState(true);
+    const [userRole, setUserRole] = React.useState(null);
+    const [userId, setUserId] = React.useState('');
     const CustomVehicleIcon = () => (<Image source={vanIcon} style={{ width: 60, height: 60 }} />);
     const CustomDriverIcon = () => (<Image source={driverIcon} style={{ width: 60, height: 60 }} />);
     const CustomSchoolIcon = () => (<Image source={schoolIcon} style={{ width: 60, height: 60 }} />);
@@ -22,41 +22,27 @@ const Dashboard = ({ navigation }) => {
     const CustomMoneyIcon = () => (<Image source={moneyIcon} style={{ width: 60, height: 60 }} />);
     const CustomMaintenanceIcon = () => (<Image source={maintenanceIcon} style={{ width: 60, height: 60 }} />);
 
-    useEffect(() => {
+    React.useEffect(() => {
         const fetchUserData = async () => {
-            try {
-                const { data: { user } } = await supabase.auth.getUser();
-                if (user) {
-                    console.log('uuid:', user.id);
-                    setUserId(user.id);
 
-                    const { data: profiles, error } = await supabase
-                        .from('profiles')
-                        .select('role_id')
-                        .eq('id', user.id)
-                        .single();
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                console.log('uuid:', user.id);
+                setUserId(user.id); // Getting the logged in user
 
-                    if (profiles) {
-                        console.log('user role_id:', profiles.role_id);
-                        const role_id = profiles.role_id;
+                const { data: profiles, error } = await supabase
+                    .from('profiles')
+                    .select('role_id')
+                    .eq('id', user.id)
+                    .single();
 
-                        const { data: roles, error } = await supabase
-                            .from('roles')
-                            .select('role_name')
-                            .eq('id', role_id);
-
-                        if (roles) {
-                            console.log('user role_name is:', roles.role_name);
-                            setUserRole(roles.role_name);
-                        } else {
-                            console.error('Error fetching user role', error);
-                        }
-                    } else {
-                        console.error('Error fetching user profile', error)
-                    }
+                if (profiles) {
+                    console.log('user role_id:', profiles.role_id);
+                    const role_id = profiles.role_id;
+                    setUserRole(role_id)
+                } else {
+                    console.error('Error fetching user profile', error)
                 }
-            } catch (error) {
-                console.error('Error fetching user data:', error);
             }
         };
 
@@ -113,66 +99,168 @@ const Dashboard = ({ navigation }) => {
                 </View>
 
                 <Text variant='titleMedium' className='ml-5'>Management Dashboard</Text>
-
-                <Text variant='titleMedium' className='ml-5'>User Id: {userId}</Text>
                 <Text variant='titleMedium' className='ml-5'>User Role: {userRole}</Text>
 
+                {/* owner dashboard start */}
+                {userRole === 2 && (
+                    <View className='my-5 flex flex-row items-center justify-around'>
+                        <View className={'border border-slate-300 rounded-lg bg-white flex items-center'}>
+                            <IconButton
+                                icon={CustomVehicleIcon}
+                                size={60}
+                                onPress={() => handleNavigation('Vehicle List', { userId: userId, roleId: userRole })}
+                                accessibilityLabel='Vehicle'
+                            />
+                        </View>
 
-                <View className='my-5 flex flex-row items-center justify-around'>
-                    <View className={'border border-slate-300 rounded-lg bg-white flex items-center'}>
-                        <IconButton
-                            icon={CustomVehicleIcon}
-                            size={60}
-                            onPress={() => handleNavigation('Vehicle List', userId)}
-                            accessibilityLabel='Vehicle'
-                        />
-                    </View>
-                    {userRole !== 'driver' && (
                         <View className={'border border-slate-300 rounded-lg bg-white flex items-center'}>
                             <IconButton
                                 icon={CustomDriverIcon}
                                 size={60}
-                                onPress={() => navigation.navigate('Driver List')}
+                                onPress={() => navigation.navigate('Driver List', { userId: userId, roleId: userRole })}
                                 accessibilityLabel='Driver'
                             />
                         </View>
-                    )}
-                    <View className={'border border-slate-300 rounded-lg bg-white flex items-center'}>
-                        <IconButton
-                            icon={CustomSchoolIcon}
-                            size={60}
-                            onPress={() => navigation.navigate('School List')}
-                            accessibilityLabel='School'
-                        />
-                    </View>
-                </View>
 
-                <View className='my-5 flex flex-row items-center justify-around'>
-                    <View className={'border border-slate-300 rounded-lg bg-white flex items-center'}>
-                        <IconButton
-                            icon={CustomStudentIcon}
-                            size={60}
-                            onPress={() => navigation.navigate('Student List')}
-                            accessibilityLabel='Student'
-                        />
+                        <View className={'border border-slate-300 rounded-lg bg-white flex items-center'}>
+                            <IconButton
+                                icon={CustomSchoolIcon}
+                                size={60}
+                                onPress={() => navigation.navigate('School List', { userId: userId, roleId: userRole })}
+                                accessibilityLabel='School'
+                            />
+                        </View>
                     </View>
-                    <View className={'border border-slate-300 rounded-lg bg-white flex items-center'}>
-                        <IconButton
-                            icon={CustomMoneyIcon}
-                            size={60}
-                            onPress={() => console.log('Pressed')}
-                            accessibilityLabel='Payment'
-                        />
+                )}
+                {userRole === 2 && (
+                    <View className='my-5 flex flex-row items-center justify-around'>
+                        <View className={'border border-slate-300 rounded-lg bg-white flex items-center'}>
+                            <IconButton
+                                icon={CustomStudentIcon}
+                                size={60}
+                                onPress={() => navigation.navigate('Student List', { userId: userId, roleId: userRole })}
+                                accessibilityLabel='Student'
+                            />
+                        </View>
+                        <View className={'border border-slate-300 rounded-lg bg-white flex items-center'}>
+                            <IconButton
+                                icon={CustomMoneyIcon}
+                                size={60}
+                                onPress={() => navigation.navigate('Payment Details', { userId: userId, roleId: userRole })}
+                                accessibilityLabel='Payment'
+                            />
+                        </View>
+                        <View className={'border border-slate-300 rounded-lg bg-white flex items-center'}>
+                            <IconButton
+                                icon={CustomMaintenanceIcon}
+                                size={60}
+                                onPress={() => navigation.navigate('Vehicel Maintenance Record List', { userId: userId, roleId: userRole })}
+                                accessibilityLabel='Extra Icon'
+                            />
+                        </View>
                     </View>
-                    <View className={'border border-slate-300 rounded-lg bg-white flex items-center'}>
-                        <IconButton
-                            icon={CustomMaintenanceIcon}
-                            size={60}
-                            onPress={() => console.log('Pressed')}
-                            accessibilityLabel='Extra Icon'
-                        />
+                )}
+
+                {/* owner dashboard end */}
+
+                {/* both dashboard start */}
+                {userRole === 3 && (
+                    <View className='my-5 flex flex-row items-center justify-around'>
+                        <View className={'border border-slate-300 rounded-lg bg-white flex items-center'}>
+                            <IconButton
+                                icon={CustomVehicleIcon}
+                                size={60}
+                                onPress={() => handleNavigation('Vehicle List', { userId: userId, roleId: userRole })}
+                                accessibilityLabel='Vehicle'
+                            />
+                        </View>
+
+                        <View className={'border border-slate-300 rounded-lg bg-white flex items-center'}>
+                            <IconButton
+                                icon={CustomSchoolIcon}
+                                size={60}
+                                onPress={() => navigation.navigate('School List', { userId: userId, roleId: userRole })}
+                                accessibilityLabel='School'
+                            />
+                        </View>
+
+                        <View className={'border border-slate-300 rounded-lg bg-white flex items-center'}>
+                            <IconButton
+                                icon={CustomStudentIcon}
+                                size={60}
+                                onPress={() => navigation.navigate('Student List', { userId: userId, roleId: userRole })}
+                                accessibilityLabel='Student'
+                            />
+                        </View>
                     </View>
-                </View>
+                )}
+                {userRole === 3 && (
+                    <View className='my-5 flex flex-row justify-around '>
+                        <View className={'border border-slate-300 rounded-lg bg-white flex items-center'}>
+                            <IconButton
+                                icon={CustomMoneyIcon}
+                                size={60}
+                                onPress={() => navigation.navigate('Payment Details', { userId: userId, roleId: userRole })}
+                                accessibilityLabel='Payment'
+                            />
+                        </View>
+                        <View className={'border border-slate-300 rounded-lg bg-white flex items-center'}>
+                            <IconButton
+                                icon={CustomMaintenanceIcon}
+                                size={60}
+                                onPress={() => navigation.navigate('Vehicel Maintenance Record List', { userId: userId, roleId: userRole })}
+                                accessibilityLabel='Maintenance'
+                            />
+                        </View>
+                    </View>
+                )}
+                {/* Both dashboard end */}
+
+                {/* drive dashboard start */}
+                {userRole === 4 && (
+                    <View className='my-5 flex flex-row items-center justify-around'>
+                        <View className={'border border-slate-300 rounded-lg bg-white flex items-center'}>
+                            <IconButton
+                                icon={CustomStudentIcon}
+                                size={60}
+                                onPress={() => navigation.navigate('Student List', { userId: userId, roleId: userRole })}
+                                accessibilityLabel='Student'
+                            />
+                        </View>
+
+                        <View className={'border border-slate-300 rounded-lg bg-white flex items-center'}>
+                            <IconButton
+                                icon={CustomSchoolIcon}
+                                size={60}
+                                onPress={() => navigation.navigate('School List', { userId: userId, roleId: userRole })}
+                                accessibilityLabel='School'
+                            />
+                        </View>
+
+                        <View className={'border border-slate-300 rounded-lg bg-white flex items-center'}>
+                            <IconButton
+                                icon={CustomMoneyIcon}
+                                size={60}
+                                onPress={() => navigation.navigate('Payment Details', { userId: userId, roleId: userRole })}
+                                accessibilityLabel='Payment'
+                            />
+                        </View>
+                    </View>
+                )}
+
+                {userRole === 4 && (
+                    <View className='m-5 flex flex-row items-center justify-start'>
+                        <View className={'border border-slate-300 rounded-lg bg-white flex items-center'}>
+                            <IconButton
+                                icon={CustomMaintenanceIcon}
+                                size={60}
+                                onPress={() => navigation.navigate('Vehicel Maintenance Record List', { userId: userId, roleId: userRole })}
+                                accessibilityLabel='Maintenance'
+                            />
+                        </View>
+                    </View>
+                )}
+                {/* drive dashboard end */}
 
             </View>
             <StatusBar style="light" backgroundColor={'#324AB2'} />

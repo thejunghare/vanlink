@@ -4,7 +4,8 @@ import { Text, Button, DataTable, IconButton, Searchbar } from 'react-native-pap
 import { useNavigation } from '@react-navigation/native';
 import { supabase } from '../../lib/supabase';
 
-const StudentList = () => {
+const StudentList = ({ route }) => {
+    const { roleId, userId } = route.params;
     const navigation = useNavigation();
     const [searchQuery, setSearchQuery] = React.useState('');
     const [page, setPage] = React.useState(0);
@@ -22,10 +23,10 @@ const StudentList = () => {
         if (!error) {
             //console.info('Student details fetched', students);
             setStudents(students);
-            ToastAndroid.show('Student Fetched !', ToastAndroid.SHORT);
+            ToastAndroid.show('Student Fetched!', ToastAndroid.SHORT);
         } else {
             //console.error('Error while fetching student details', error);
-            ToastAndroid.show('Error while fetching students !', ToastAndroid.SHORT);
+            ToastAndroid.show('Error while fetching students!', ToastAndroid.SHORT);
         }
     }
 
@@ -50,58 +51,75 @@ const StudentList = () => {
             refreshControl={
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }>
-            <View className={'m-3'}>
-                <Searchbar
-                    placeholder='Search Student'
-                    onChangeText={setSearchQuery}
-                    value={searchQuery}
-                />
-            </View>
 
-            <DataTable>
-                <DataTable.Header>
-                    <DataTable.Title>Student Name</DataTable.Title>
-                    <DataTable.Title numeric>Actions</DataTable.Title>
-                </DataTable.Header>
+            <View className='h-screen flex justify-evenly'>
+                <View className='h-3/4'>
+                    <View className={'m-3'}>
+                        <Searchbar
+                            placeholder='Search Student'
+                            onChangeText={setSearchQuery}
+                            value={searchQuery}
+                        />
+                    </View>
 
-                {students.slice(from, to).map((student) => (
-                    <DataTable.Row key={student.id}>
-                        <DataTable.Cell>{student.student_fees}</DataTable.Cell>
-                        <DataTable.Cell numeric>
-                            <IconButton
-                                icon='eye'
-                                onPress={() =>
-                                    navigation.navigate('Student Details', { student })}
-                            />
-                            <IconButton
-                                icon='pencil'
-                                onPress={() => navigation.navigate('Add Student', { itemKey: student.id })}
-                            />
-                            <IconButton icon='delete' onPress={() => console.log('Delete', student.id)} />
-                        </DataTable.Cell>
-                    </DataTable.Row>
-                ))}
+                    <DataTable>
+                        <DataTable.Header>
+                            <DataTable.Title>Student Name</DataTable.Title>
+                            <DataTable.Title numeric>Actions</DataTable.Title>
+                        </DataTable.Header>
 
-                <DataTable.Pagination
-                    page={page}
-                    numberOfPages={Math.ceil(students.length / itemsPerPage)}
-                    onPageChange={(page) => setPage(page)}
-                    label={`${from + 1}-${to} of ${students.length}`}
-                    numberOfItemsPerPageList={numberOfItemsPerPageList}
-                    numberOfItemsPerPage={itemsPerPage}
-                    onItemsPerPageChange={onItemsPerPageChange}
-                    showFastPaginationControls
-                    selectPageDropdownLabel={'Rows per page'}
-                />
-            </DataTable>
+                        {students.slice(from, to).map((student) => (
+                            <DataTable.Row key={student.id}>
+                                <DataTable.Cell>{student.student_fees}</DataTable.Cell>
+                                <DataTable.Cell numeric>
+                                    <IconButton
+                                        icon='eye'
+                                        onPress={() =>
+                                            navigation.navigate('Student Details', { student })}
+                                    />
 
-            {students.length === 0 && (
-                <View className='m-5 flex items-center justify-center'>
-                    <Text variant='titleMedium' className='py-3'>No data exist click to add!</Text>
-                    <Button icon='plus' mode='contained' onPress={() => navigation.navigate('Add Student')}>Add
-                        Student</Button>
+                                    {roleId === 2 || roleId === 3 && (
+                                        <IconButton
+                                            icon='pencil'
+                                            onPress={() =>
+                                                navigation.navigate('Add Student', { itemKey: student.id })
+                                            }
+                                        />
+                                    )}
+
+                                    {roleId === 2 || roleId === 3 && (
+                                        <IconButton
+                                            icon='delete'
+                                            onPress={() =>
+                                                console.log('Delete', student.id)
+                                            }
+                                        />
+                                    )}
+                                </DataTable.Cell>
+                            </DataTable.Row>
+                        ))}
+
+                        <DataTable.Pagination
+                            page={page}
+                            numberOfPages={Math.ceil(students.length / itemsPerPage)}
+                            onPageChange={(page) => setPage(page)}
+                            label={`${from + 1}-${to} of ${students.length}`}
+                            numberOfItemsPerPageList={numberOfItemsPerPageList}
+                            numberOfItemsPerPage={itemsPerPage}
+                            onItemsPerPageChange={onItemsPerPageChange}
+                            showFastPaginationControls
+                            selectPageDropdownLabel={'Rows per page'}
+                        />
+                    </DataTable>
                 </View>
-            )}
+
+                {roleId === 2 || roleId === 3 && (
+                    <View className='h-1/5 m-5 flex items-center justify-center'>
+                        <Button icon='plus' mode='contained' onPress={() => navigation.navigate('Add Student')}>Add
+                            Student</Button>
+                    </View>
+                )}
+            </View>
         </ScrollView>
     );
 };

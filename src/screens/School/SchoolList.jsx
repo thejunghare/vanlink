@@ -5,7 +5,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { supabase } from '../../lib/supabase';
 
-const SchoolList = () => {
+const SchoolList = ({ route }) => {
+    const { roleId, userId } = route.params;
     const navigation = useNavigation();
     const [searchQuery, setSearchQuery] = React.useState('');
     const [page, setPage] = React.useState(0);
@@ -22,13 +23,13 @@ const SchoolList = () => {
 
         if (error) {
             //console.error("Error fetching schools:", error);
-            ToastAndroid.show('error fetching schools !', ToastAndroid.SHORT);
-            return;
+            ToastAndroid.show('error fetching schools!', ToastAndroid.SHORT);
         }
 
         if (schools) {
             //console.info('Schools fetched', schools);
             setSchools(schools);
+            ToastAndroid.show('Schools fetched!', ToastAndroid.SHORT);
             //schools.forEach((school) => console.log(school.school_name));
             //schools.forEach((school) => console.log(school.id));
         }
@@ -73,66 +74,74 @@ const SchoolList = () => {
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }
         >
-            <View className={'m-3'}>
-                <Searchbar
-                    placeholder='Search School'
-                    onChangeText={setSearchQuery}
-                    value={searchQuery}
-                />
-            </View>
+            <View className='h-screen flex justify-evenly'>
+                <View className='h-3/4'>
+                    <View className={'m-3'}>
+                        <Searchbar
+                            placeholder='Search School'
+                            onChangeText={setSearchQuery}
+                            value={searchQuery}
+                        />
+                    </View>
 
-            <DataTable>
-                <DataTable.Header>
-                    <DataTable.Title>School Name</DataTable.Title>
-                    <DataTable.Title numeric>Actions</DataTable.Title>
-                </DataTable.Header>
+                    <DataTable>
+                        <DataTable.Header>
+                            <DataTable.Title>School Name</DataTable.Title>
+                            <DataTable.Title numeric>Actions</DataTable.Title>
+                        </DataTable.Header>
 
-                {schools.slice(from, to).map((school) => (
-                    <DataTable.Row key={school.id}>
-                        <DataTable.Cell>{school.school_name}</DataTable.Cell>
-                        <DataTable.Cell numeric>
-                            <IconButton
-                                icon='eye'
-                                onPress={() =>
-                                    navigation.navigate('School Details', { school })
-                                }
-                            />
+                        {schools.slice(from, to).map((school) => (
+                            <DataTable.Row key={school.id}>
+                                <DataTable.Cell>{school.school_name}</DataTable.Cell>
+                                <DataTable.Cell numeric>
+                                    <IconButton
+                                        icon='eye'
+                                        onPress={() =>
+                                            navigation.navigate('School Details', { school })
+                                        }
+                                    />
 
-                            <IconButton
-                                icon='pencil'
-                                onPress={() =>
-                                    navigation.navigate('Add School', { itemId: school.id })
-                                }
-                            />
+                                    {roleId === 2 || roleId === 3 && (
+                                        <IconButton
+                                            icon='pencil'
+                                            onPress={() =>
+                                                navigation.navigate('Add School', { itemId: school.id })
+                                            }
+                                        />
+                                    )}
 
-                            <IconButton
-                                icon='delete'
-                                onPress={() => deleteSchool(school.id)}
-                            />
-                        </DataTable.Cell>
-                    </DataTable.Row>
-                ))}
+                                    {roleId === 2 || roleId === 3 && (
+                                        <IconButton
+                                            icon='delete'
+                                            onPress={() => deleteSchool(school.id)}
+                                        />
+                                    )}
+                                </DataTable.Cell>
+                            </DataTable.Row>
+                        ))}
 
-                <DataTable.Pagination
-                    page={page}
-                    numberOfPages={Math.ceil(schools.length / itemsPerPage)}
-                    onPageChange={(page) => setPage(page)}
-                    label={`${from + 1}-${to} of ${schools.length}`}
-                    numberOfItemsPerPageList={numberOfItemsPerPageList}
-                    numberOfItemsPerPage={itemsPerPage}
-                    onItemsPerPageChange={onItemsPerPageChange}
-                    showFastPaginationControls
-                    selectPageDropdownLabel={'Rows per page'}
-                />
-            </DataTable>
+                        <DataTable.Pagination
+                            page={page}
+                            numberOfPages={Math.ceil(schools.length / itemsPerPage)}
+                            onPageChange={(page) => setPage(page)}
+                            label={`${from + 1}-${to} of ${schools.length}`}
+                            numberOfItemsPerPageList={numberOfItemsPerPageList}
+                            numberOfItemsPerPage={itemsPerPage}
+                            onItemsPerPageChange={onItemsPerPageChange}
+                            showFastPaginationControls
+                            selectPageDropdownLabel={'Rows per page'}
+                        />
+                    </DataTable>
 
-            {schools.length === 0 && (
-                <View className='m-5 flex items-center justify-center'>
-                    <Text variant='titleMedium' className='py-3'>No data exist click to add!</Text>
-                    <Button icon='plus' mode='contained' onPress={() => navigation.navigate('Add School')}>Add
-                        School</Button>
                 </View>
-            )}
+
+                {roleId === 2 || roleId === 3 && (
+                    <View className='h-1/5 m-5 flex items-center justify-center'>
+                        <Button icon='plus' mode='contained' onPress={() => navigation.navigate('Add School')}>Add
+                            School</Button>
+                    </View>
+                )}
+            </View>
         </ScrollView>
     );
 };

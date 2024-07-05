@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ToastAndroid, TouchableOpacity } from 'react-native';
+import { View, Text, ToastAndroid, ScrollView } from 'react-native';
 import { Button, TextInput } from 'react-native-paper';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { supabase } from '../../lib/supabase';
@@ -49,53 +49,57 @@ const AddVehicleMaintenanceRecord = () => {
     }
 
     return (
-        <View className={'px-3 flex-1'}>
-            <View className={''}>
-                {/* date */}
-                <TextInput
-                    onPress={openDatePicker}
-                    placeholder="Select Date"
-                    value={selectedDate.toLocaleDateString()}
-                    className={'my-3'}
-                    mode='outlined'
-                />
-                {showDatePicker && (
-                    <DateTimePicker
-                        testID="dateTimePicker"
-                        value={selectedDate}
-                        mode="date"
-                        is24Hour={false} // Adjust based on preference
-                        display="calendar"
-                        onChange={handleDateChange}
+        <ScrollView className={'px-3 flex-1'}>
+            <View className='h-screen flex justify-evenly'>
+                <View className='h-3/4'>
+                    {/* date */}
+                    <TextInput
+                        onPress={openDatePicker}
+                        placeholder="Select Date"
+                        value={selectedDate.toLocaleDateString()}
+                        className={'my-3'}
+                        mode='outlined'
                     />
-                )}
+                    {showDatePicker && (
+                        <DateTimePicker
+                            testID="dateTimePicker"
+                            value={selectedDate}
+                            mode="date"
+                            is24Hour={false} // Adjust based on preference
+                            display="calendar"
+                            onChange={handleDateChange}
+                        />
+                    )}
 
-                {/* description */}
-                <TextInput
-                    label='Maintenance Description*'
-                    placeholder='Enter maintenance description'
-                    className={'my-3'}
-                    mode='outlined'
-                    onChangeText={setMaintenanceDescription}
-                    value={maintenanceDescription}
-                />
+                    {/* description */}
+                    <TextInput
+                        label='Maintenance Description*'
+                        placeholder='Enter maintenance description'
+                        className={'my-3'}
+                        mode='outlined'
+                        onChangeText={setMaintenanceDescription}
+                        value={maintenanceDescription}
+                    />
 
-                {/* cost */}
-                <TextInput
-                    label='Maintenance Cost*'
-                    placeholder='Enter maintenance cost'
-                    className={'my-3'}
-                    mode='outlined'
-                    onChangeText={setMaintenanceCost}
-                    value={maintenanceCost}
-                />
+                    {/* cost */}
+                    <TextInput
+                        label='Maintenance Cost*'
+                        placeholder='Enter maintenance cost'
+                        className={'my-3'}
+                        mode='outlined'
+                        onChangeText={setMaintenanceCost}
+                        value={maintenanceCost}
+                    />
+                </View>
+
+                <View className='h-1/5 m-5 flex items-center justify-center'>
+                    {/* submit details */}
+                    <Button icon='plus' mode='contained' onPress={insertMaintenanceRecord}>
+                        Add Record
+                    </Button>
+                </View>
             </View>
-
-            {/* submit details */}
-            <Button icon='plus' mode='contained' onPress={insertMaintenanceRecord}>
-                Add
-            </Button>
-        </View>
+        </ScrollView>
     );
 };
 

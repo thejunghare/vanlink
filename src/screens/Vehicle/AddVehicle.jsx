@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ToastAndroid } from 'react-native';
+import { View, ToastAndroid, ScrollView } from 'react-native';
 import { Button, TextInput } from 'react-native-paper';
 import { supabase } from '../../lib/supabase';
 
@@ -51,49 +51,53 @@ const AddVehicle = () => {
     else
       //console.info('vehicle added')
       resetFields();
-      ToastAndroid.show('Added !', ToastAndroid.SHORT);
+    ToastAndroid.show('Added !', ToastAndroid.SHORT);
 
   };
 
   return (
-    <View className={'px-3 flex-1'}>
-      <View>
-        {/* vehicle number */}
-        <TextInput
-          label='Vechile Number'
-          placeholder='Enter vehicle number'
-          className={'my-3'}
-          mode='outlined'
-          onChangeText={setVehicleNumber}
-          value={vehicleNumber}
-        />
+    <ScrollView className={'px-3 flex-1'}>
+      <View className='h-screen flex justify-evenly'>
+        <View className='h-3/4'>
+          {/* vehicle number */}
+          <TextInput
+            label='Vechile Number'
+            placeholder='Enter vehicle number'
+            className={'my-3'}
+            mode='outlined'
+            onChangeText={setVehicleNumber}
+            value={vehicleNumber}
+          />
 
-        {/* vehicle model */}
-        <TextInput
-          label='Model Name'
-          placeholder='Enter vehicle model name'
-          className={'my-3'}
-          mode='outlined'
-          onChangeText={setVehicleModel}
-          value={vehicleModel}
-        />
+          {/* vehicle model */}
+          <TextInput
+            label='Model Name'
+            placeholder='Enter vehicle model name'
+            className={'my-3'}
+            mode='outlined'
+            onChangeText={setVehicleModel}
+            value={vehicleModel}
+          />
 
-        {/* vehicle capacity */}
-        <TextInput
-          label='Vehicle Capacity'
-          placeholder='Enter vehicle capacity'
-          className={'my-3'}
-          mode='outlined'
-          onChangeText={setVehicleCapacity}
-          value={vehicleCapacity}
-          keyboardType="numeric"
-        />
+          {/* vehicle capacity */}
+          <TextInput
+            label='Vehicle Capacity'
+            placeholder='Enter vehicle capacity'
+            className={'my-3'}
+            mode='outlined'
+            onChangeText={setVehicleCapacity}
+            value={vehicleCapacity}
+            keyboardType="numeric"
+          />
+        </View>
+
+        <View className='h-1/5 m-5 flex items-center justify-center'>
+          <Button icon='plus' mode='contained' onPress={insertVehicle}>
+            Add Vehicle
+          </Button>
+        </View>
       </View>
-
-      <Button icon='plus' mode='contained' onPress={insertVehicle}>
-        Add
-      </Button>
-    </View>
+    </ScrollView>
   );
 };
 

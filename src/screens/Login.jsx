@@ -53,7 +53,7 @@ const Login = ({ navigation }) => {
 
                     <View>
                         <Button icon='login' mode='contained' onPress={handleLogin}>
-                           {loading? 'Logging In...' : 'Log React.In'}
+                           {loading? 'Logging In...' : 'Log In'}
                         </Button>
                     </View>
                 </View>

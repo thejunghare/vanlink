@@ -79,66 +79,68 @@ const DriverList = () => {
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }
         >
-            <View className={'m-3'}>
-                <Searchbar
-                    placeholder='Search Driver'
-                    onChangeText={setSearchQuery}
-                    value={searchQuery}
-                />
-            </View>
 
-            <DataTable>
-                <DataTable.Header>
-                    <DataTable.Title>Driver Id</DataTable.Title>
-                    <DataTable.Title numeric>Actions</DataTable.Title>
-                </DataTable.Header>
+            <View className='h-screen flex justify-evenly'>
+                <View className='h-3/4'>
+                    <View className={'m-3'}>
+                        <Searchbar
+                            placeholder='Search Driver'
+                            onChangeText={setSearchQuery}
+                            value={searchQuery}
+                        />
+                    </View>
 
-                {drivers.slice(from, to).map((driver) => (
-                    <DataTable.Row key={driver.id}>
-                        <DataTable.Cell>{driver.profile_id}</DataTable.Cell>
-                        <DataTable.Cell numeric>
-                            <IconButton
-                                icon='eye'
-                                onPress={() =>
-                                    navigation.navigate('Driver Details', { driver})
-                                }
-                            />
+                    <DataTable>
+                        <DataTable.Header>
+                            <DataTable.Title>Driver Id</DataTable.Title>
+                            <DataTable.Title numeric>Actions</DataTable.Title>
+                        </DataTable.Header>
 
-                            <IconButton
-                                icon='pencil'
-                                onPress={() =>
-                                    navigation.navigate('Add Driver', { itemId: driver.id })
-                                }
-                            />
+                        {drivers.slice(from, to).map((driver) => (
+                            <DataTable.Row key={driver.id}>
+                                <DataTable.Cell>{driver.profile_id}</DataTable.Cell>
+                                <DataTable.Cell numeric>
+                                    <IconButton
+                                        icon='eye'
+                                        onPress={() =>
+                                            navigation.navigate('Driver Details', { driver })
+                                        }
+                                    />
 
-                            <IconButton
-                                icon='delete'
-                                onPress={() => deleteDrivers(driver.id)}
-                            />
-                        </DataTable.Cell>
-                    </DataTable.Row>
-                ))}
+                                    <IconButton
+                                        icon='pencil'
+                                        onPress={() =>
+                                            navigation.navigate('Add Driver', { itemId: driver.id })
+                                        }
+                                    />
 
-                <DataTable.Pagination
-                    page={page}
-                    numberOfPages={Math.ceil(drivers.length / itemsPerPage)}
-                    onPageChange={(page) => setPage(page)}
-                    label={`${from + 1}-${to} of ${drivers.length}`}
-                    numberOfItemsPerPageList={numberOfItemsPerPageList}
-                    numberOfItemsPerPage={itemsPerPage}
-                    onItemsPerPageChange={onItemsPerPageChange}
-                    showFastPaginationControls
-                    selectPageDropdownLabel={'Rows per page'}
-                />
-            </DataTable>
+                                    <IconButton
+                                        icon='delete'
+                                        onPress={() => deleteDrivers(driver.id)}
+                                    />
+                                </DataTable.Cell>
+                            </DataTable.Row>
+                        ))}
 
-            {drivers.length === 0 && (
-                <View className='m-5 flex items-center justify-center'>
-                    <Text variant='titleMedium' className='py-3'>No data exist click to add!</Text>
+                        <DataTable.Pagination
+                            page={page}
+                            numberOfPages={Math.ceil(drivers.length / itemsPerPage)}
+                            onPageChange={(page) => setPage(page)}
+                            label={`${from + 1}-${to} of ${drivers.length}`}
+                            numberOfItemsPerPageList={numberOfItemsPerPageList}
+                            numberOfItemsPerPage={itemsPerPage}
+                            onItemsPerPageChange={onItemsPerPageChange}
+                            showFastPaginationControls
+                            selectPageDropdownLabel={'Rows per page'}
+                        />
+                    </DataTable>
+                </View>
+
+                <View className='h-1/5 m-5 flex items-center justify-center'>
                     <Button icon='plus' mode='contained' onPress={() => navigation.navigate('Add Driver')}>Add
                         Driver</Button>
                 </View>
-            )}
+            </View>
         </ScrollView>
     );
 };

@@ -101,7 +101,7 @@ const SchoolList = ({ route }) => {
                                         }
                                     />
 
-                                    {roleId === 2 || roleId === 3 && (
+                                    {(roleId === 2 || roleId === 3) && (
                                         <IconButton
                                             icon='pencil'
                                             onPress={() =>
@@ -110,7 +110,7 @@ const SchoolList = ({ route }) => {
                                         />
                                     )}
 
-                                    {roleId === 2 || roleId === 3 && (
+                                    {(roleId === 2 || roleId === 3) && (
                                         <IconButton
                                             icon='delete'
                                             onPress={() => deleteSchool(school.id)}
@@ -135,8 +135,8 @@ const SchoolList = ({ route }) => {
 
                 </View>
 
-                {roleId === 2 || roleId === 3 && (
-                    <View className='h-1/5 m-5 flex items-center justify-center'>
+                {(roleId === 2 || roleId === 3) && (
+                      <View className='h-1/5 m-5 flex items-center justify-center'>
                         <Button icon='plus' mode='contained' onPress={() => navigation.navigate('Add School')}>Add
                             School</Button>
                     </View>

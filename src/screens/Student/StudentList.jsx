@@ -78,7 +78,7 @@ const StudentList = ({ route }) => {
                                             navigation.navigate('Student Details', { student })}
                                     />
 
-                                    {roleId === 2 || roleId === 3 && (
+                                    {(roleId === 2 || roleId === 3) && (
                                         <IconButton
                                             icon='pencil'
                                             onPress={() =>
@@ -87,7 +87,7 @@ const StudentList = ({ route }) => {
                                         />
                                     )}
 
-                                    {roleId === 2 || roleId === 3 && (
+                                    {(roleId === 2 || roleId === 3) && (
                                         <IconButton
                                             icon='delete'
                                             onPress={() =>
@@ -113,7 +113,7 @@ const StudentList = ({ route }) => {
                     </DataTable>
                 </View>
 
-                {roleId === 2 || roleId === 3 && (
+                {(roleId === 2 || roleId === 3) && (
                     <View className='h-1/5 m-5 flex items-center justify-center'>
                         <Button icon='plus' mode='contained' onPress={() => navigation.navigate('Add Student')}>Add
                             Student</Button>

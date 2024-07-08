@@ -18,7 +18,7 @@ const StudentList = ({ route }) => {
         let { data: students, error } = await supabase
             .from('students')
             .select('*')
-            .eq('driver_id', 3);
+            .eq('driver_id', 3); //TODO:Replace with actuall id
 
         if (!error) {
             //console.info('Student details fetched', students);

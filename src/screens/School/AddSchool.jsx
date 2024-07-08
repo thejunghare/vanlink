@@ -3,7 +3,10 @@ import { View, Text, ToastAndroid, ScrollView } from 'react-native';
 import { Button, TextInput, RadioButton } from 'react-native-paper';
 import { supabase } from '../../lib/supabase';
 
-const AddSchool = () => {
+const AddSchool = ({route}) => {
+    const { userId, roleId, ownerId } = route.params;
+    console.info('Route params data on school add screen: ', userId, roleId, ownerId);
+
     const [checked, setChecked] = React.useState('Morning');
     const [schoolName, setSchoolName] = React.useState('');
     const [schoolAddress, setSchoolAddress] = React.useState('');
@@ -22,7 +25,7 @@ const AddSchool = () => {
                     school_name: schoolName,
                     school_address: schoolAddress,
                     school_shift: schoolShiftDetails,
-                    owner_id: 1 //TODO: replace with actually ID
+                    owner_id: ownerId
                 }
             ]);
 

@@ -6,7 +6,9 @@ import { useNavigation } from '@react-navigation/native';
 import { supabase } from '../../lib/supabase';
 
 const SchoolList = ({ route }) => {
-    const { roleId, userId } = route.params;
+    const { userId, roleId, ownerId } = route.params;
+    console.info('Route params data on school list screen: ', userId, roleId, ownerId);
+
     const navigation = useNavigation();
     const [searchQuery, setSearchQuery] = React.useState('');
     const [page, setPage] = React.useState(0);
@@ -19,7 +21,7 @@ const SchoolList = ({ route }) => {
         let { data: schools, error } = await supabase
             .from('schools')
             .select('*')
-            .eq('owner_id', 1); // Todo: replace wiht actual ID
+            .eq('owner_id', ownerId);
 
         if (error) {
             //console.error("Error fetching schools:", error);
@@ -35,11 +37,11 @@ const SchoolList = ({ route }) => {
         }
     }
 
-    const deleteSchool = async (school_id) => {
+    const deleteSchool = async (id) => {
         const { error } = await supabase
             .from('schools')
             .delete()
-            .eq('id', 5); // Todo: replace wiht actual ID
+            .eq('id', id);
 
         if (!error) {
             //console.info('School removed');
@@ -136,8 +138,8 @@ const SchoolList = ({ route }) => {
                 </View>
 
                 {(roleId === 2 || roleId === 3) && (
-                      <View className='h-1/5 m-5 flex items-center justify-center'>
-                        <Button icon='plus' mode='contained' onPress={() => navigation.navigate('Add School')}>Add
+                    <View className='h-1/5 m-5 flex items-center justify-center'>
+                        <Button icon='plus' mode='contained' onPress={() => navigation.navigate('Add School', { userId: userId, roleId: roleId, ownerId: ownerId })}>Add
                             School</Button>
                     </View>
                 )}

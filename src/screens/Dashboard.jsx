@@ -15,6 +15,10 @@ const Dashboard = ({ navigation }) => {
     const [isProfileComplete, setIsProfileComplete] = React.useState(true);
     const [userRole, setUserRole] = React.useState(null);
     const [userId, setUserId] = React.useState('');
+    const [profileId, setProfileId] = React.useState('');
+    const [ownerId, setOwnerId] = React.useState('');
+    const [driverId, setDriverId] = React.useState('');
+    const [ownerWithDriverId, setOwnerWithDriverId] = React.useState('');
     const CustomVehicleIcon = () => (<Image source={vanIcon} style={{ width: 60, height: 60 }} />);
     const CustomDriverIcon = () => (<Image source={driverIcon} style={{ width: 60, height: 60 }} />);
     const CustomSchoolIcon = () => (<Image source={schoolIcon} style={{ width: 60, height: 60 }} />);
@@ -22,53 +26,77 @@ const Dashboard = ({ navigation }) => {
     const CustomMoneyIcon = () => (<Image source={moneyIcon} style={{ width: 60, height: 60 }} />);
     const CustomMaintenanceIcon = () => (<Image source={maintenanceIcon} style={{ width: 60, height: 60 }} />);
 
+    // fetch user detials here
+    const fetchUserData = async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+            //console.log('uuid:', user.id);
+            setUserId(user.id); // Getting the logged in user
+
+            const { data: profiles, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', user.id)
+                .single();
+
+            if (profiles) {
+                //console.info('user role_id:', profiles.role_id);
+                const role_id = profiles.role_id;
+                setUserRole(role_id) // get loggedIn user role Id
+
+                //console.info('User profile id: ', profiles.id);
+                const profile_Id = profiles.id
+                setProfileId(profile_Id) // get loggedIn user profile Id
+
+                if ((role_id === 2) || (role_id === 3)) {
+                    let { data: owners, error } = await supabase
+                        .from('owners')
+                        .select('*')
+                        .eq('profile_id', profile_Id)
+                        .single();
+
+                    if (owners) {
+                        //console.info('Logged in user owner info: ', owners);
+                        const owner_id = owners.id
+                        //console.log('Logged in user owner id', owner_id)
+                        setOwnerId(owners.id);
+                    } else {
+                        console.error('Error fetching owner info', error);
+                    }
+                }
+            } else {
+                console.error('Error fetching user profile', error)
+            }
+        }
+    };
+
+    // fetch profiles details here
+    const fetchProfileData = async () => {
+        const user = supabase.auth.user();
+        if (user) {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('full_name')
+                .eq('id', user.id)
+                .single();
+
+            if (data && !data.required_column) {
+                setIsProfileComplete(false);
+            }
+        }
+    };
+
     React.useEffect(() => {
-        const fetchUserData = async () => {
-
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-                console.log('uuid:', user.id);
-                setUserId(user.id); // Getting the logged in user
-
-                const { data: profiles, error } = await supabase
-                    .from('profiles')
-                    .select('role_id')
-                    .eq('id', user.id)
-                    .single();
-
-                if (profiles) {
-                    console.log('user role_id:', profiles.role_id);
-                    const role_id = profiles.role_id;
-                    setUserRole(role_id)
-                } else {
-                    console.error('Error fetching user profile', error)
-                }
-            }
-        };
-
-        const fetchProfileData = async () => {
-            const user = supabase.auth.user();
-            if (user) {
-                const { data, error } = await supabase
-                    .from('profiles')
-                    .select('full_name')
-                    .eq('id', user.id)
-                    .single();
-
-                if (data && !data.required_column) {
-                    setIsProfileComplete(false);
-                }
-            }
-        };
-
         fetchUserData();
         fetchProfileData();
     }, []);
 
+    // handle logout here
     const handleLogout = async () => {
         await supabase.auth.signOut();
     };
 
+    // handle navigation
     const handleNavigation = (screenName, userID) => {
         navigation.navigate(screenName, { userID })
     }
@@ -76,12 +104,14 @@ const Dashboard = ({ navigation }) => {
     return (
         <View className='flex-1'>
             <View>
+                {/* profile complete alert */}
                 {!isProfileComplete && (
                     <Text className={'bg-red-400 p-3 font-bold text-white text-center'}>
                         Unlock all features by completing your profile!
                     </Text>
                 )}
 
+                {/* search bar */}
                 <Searchbar
                     placeholder="Search"
                     onChangeText={setSearchQuery}
@@ -89,6 +119,7 @@ const Dashboard = ({ navigation }) => {
                     className='mx-5 mb-0 mt-5'
                 />
 
+                {/* recents button */}
                 <View className='w-screen my-5 flex flex-row items-center justify-evenly'>
                     <Button icon="arrow-top-right" mode="outlined" onPress={() => console.log('Pressed')}>
                         Profile
@@ -99,7 +130,13 @@ const Dashboard = ({ navigation }) => {
                 </View>
 
                 <Text variant='titleMedium' className='ml-5'>Management Dashboard</Text>
-                <Text variant='titleMedium' className='ml-5'>User Role: {userRole}</Text>
+
+                {/* logged in user details only for devlopment purpose */}
+                <View className='flex flex-row items-center justify-start'>
+                    <Text variant='titleMedium' className='ml-5'>user ID: {userRole}</Text>
+                    <Text variant='titleMedium' className='ml-5'>owner ID: {ownerId}</Text>
+                    <Text variant='titleMedium' className='ml-5'>Role ID: {userRole}</Text>
+                </View>
 
                 {/* owner dashboard start */}
                 {userRole === 2 && (
@@ -108,7 +145,7 @@ const Dashboard = ({ navigation }) => {
                             <IconButton
                                 icon={CustomVehicleIcon}
                                 size={60}
-                                onPress={() => handleNavigation('Vehicle List', { userId: userId, roleId: userRole })}
+                                onPress={() => navigation.navigate('Vehicle List', { userId: userId, roleId: userRole, ownerId: ownerId })}
                                 accessibilityLabel='Vehicle'
                             />
                         </View>
@@ -117,7 +154,7 @@ const Dashboard = ({ navigation }) => {
                             <IconButton
                                 icon={CustomDriverIcon}
                                 size={60}
-                                onPress={() => navigation.navigate('Driver List', { userId: userId, roleId: userRole })}
+                                onPress={() => navigation.navigate('Driver List', { userId: userId, roleId: userRole, ownerId: ownerId })}
                                 accessibilityLabel='Driver'
                             />
                         </View>
@@ -126,7 +163,7 @@ const Dashboard = ({ navigation }) => {
                             <IconButton
                                 icon={CustomSchoolIcon}
                                 size={60}
-                                onPress={() => navigation.navigate('School List', { userId: userId, roleId: userRole })}
+                                onPress={() => navigation.navigate('School List', { userId: userId, roleId: userRole, ownerId: ownerId })}
                                 accessibilityLabel='School'
                             />
                         </View>

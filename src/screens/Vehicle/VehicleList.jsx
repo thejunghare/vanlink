@@ -5,8 +5,8 @@ import { useNavigation } from '@react-navigation/native';
 import { supabase } from '../../lib/supabase';
 
 const Vehicles = ({ route }) => {
-    const { userId } = route.params;
-    const { userRole } = route.params;
+    const { userId, roleId, ownerId } = route.params;
+    console.info('Route params data on vehicle list screen: ', userId, roleId, ownerId);
 
     const navigation = useNavigation();
     const [searchQuery, setSearchQuery] = React.useState("");
@@ -17,11 +17,10 @@ const Vehicles = ({ route }) => {
     const [refreshing, setRefreshing] = React.useState();
 
     const fetchVehicles = async () => {
-
         const { data: vehicles, error: error } = await supabase
             .from('vehicles')
             .select('*')
-            .eq('owner_id', 1); // Todo: Replace with actuall id
+            .eq('owner_id', ownerId);
 
         if (error) {
             //console.error('Error fetching vehicles:', error);
@@ -143,7 +142,7 @@ const Vehicles = ({ route }) => {
                     <Button
                         icon='plus'
                         mode='contained'
-                        onPress={() => navigation.navigate('Add Vehicle')}
+                        onPress={() => navigation.navigate('Add Vehicle', { userId: userId, roleId: roleId, ownerId: ownerId })}
                     >
                         Add Vehicle
                     </Button>

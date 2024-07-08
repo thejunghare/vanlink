@@ -3,7 +3,10 @@ import { View, ToastAndroid, ScrollView } from 'react-native';
 import { Button, TextInput } from 'react-native-paper';
 import { supabase } from '../../lib/supabase';
 
-const AddVehicle = () => {
+const AddVehicle = ({ route }) => {
+  const { userId, roleId, ownerId } = route.params;
+  console.info('Route params data on vehicle add screen: ', userId, roleId, ownerId);
+
   const [vehicleNumber, setVehicleNumber] = React.useState('');
   const [vehicleModel, setVehicleModel] = React.useState('');
   const [vehicleCapacity, setVehicleCapacity] = React.useState('');
@@ -41,7 +44,7 @@ const AddVehicle = () => {
         vehicle_number: vehicleNumber,
         vehicle_modal: vehicleModel,
         vehicle_capacity: vehicleCapacity,
-        owner_id: 1, //Todo: replace with actually id
+        owner_id: ownerId,
       },
     );
 

@@ -5,7 +5,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { supabase } from '../../lib/supabase';
 
-const DriverList = () => {
+const DriverList = ({ route }) => {
+    const { userId, roleId, ownerId } = route.params;
+    console.info('Route params data on driver list screen: ', userId, roleId, ownerId);
+
     const navigation = useNavigation();
     const [searchQuery, setSearchQuery] = React.useState('');
     const [page, setPage] = React.useState(0);
@@ -21,15 +24,17 @@ const DriverList = () => {
         const { data: drivers, error: error } = await supabase
             .from('drivers')
             .select('*')
-            .eq('employer_id', 1); // Todo: Replace with actuall id
+            .eq('employer_id', ownerId); // employer ID(owner Id)
 
         if (error) {
             console.error("Error fetching drivers:", error);
+            ToastAndroid.show('error fetching drivers!', ToastAndroid.SHORT);
             return;
         }
 
         if (drivers) {
             setDrivers(drivers);
+            ToastAndroid.show('Drivers fetched!', ToastAndroid.SHORT);
             drivers.forEach((driver) => console.log(driver.profile_id));
             drivers.forEach((driver) => console.log(driver.id));
         }
@@ -39,21 +44,19 @@ const DriverList = () => {
         fetchDrivers();
     }, []);
 
-    const insertDriver = async () => {
-
-    }
-
-    const deleteDrivers = async (driverId) => {
+    const deleteDrivers = async (id) => {
         const { error } = await supabase
             .from('drivers')
             .delete()
-            .eq('profile_id', '38a31496-30dc-4add-90e0-154a220309d1'); //Todo: replace with actuall ID
+            .eq('id', id);
 
         if (!error) {
             console.info('Driver Removed!');
             fetchDrivers();
+            ToastAndroid.show('Driver Removed!', ToastAndroid.SHORT);
         } else {
             console.error('Unable to remove driver!', error);
+            ToastAndroid.show('error removing driver!', ToastAndroid.SHORT);
         }
     }
 
@@ -137,7 +140,7 @@ const DriverList = () => {
                 </View>
 
                 <View className='h-1/5 m-5 flex items-center justify-center'>
-                    <Button icon='plus' mode='contained' onPress={() => navigation.navigate('Add Driver')}>Add
+                    <Button icon='plus' mode='contained' onPress={() => navigation.navigate('Add Driver', { userId: userId, roleId: roleId, ownerId: ownerId })}>Add
                         Driver</Button>
                 </View>
             </View>

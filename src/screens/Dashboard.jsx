@@ -17,6 +17,7 @@ const Dashboard = ({ navigation }) => {
     const [userId, setUserId] = React.useState('');
     const [profileId, setProfileId] = React.useState('');
     const [ownerId, setOwnerId] = React.useState('');
+    const [driverEmployerId, setDriverEmployerId] = React.useState('');
     const [driverId, setDriverId] = React.useState('');
     const [ownerWithDriverId, setOwnerWithDriverId] = React.useState('');
     const CustomVehicleIcon = () => (<Image source={vehicleIcon} style={{ width: 70, height: 70 }} />);
@@ -48,6 +49,26 @@ const Dashboard = ({ navigation }) => {
                 const profile_Id = profiles.id
                 setProfileId(profile_Id) // get loggedIn user profile Id
 
+                // for drivers
+                if (role_id === 4) {
+                    let { data: drivers, error } = await supabase
+                        .from('drivers')
+                        .select('*')
+                        .eq('profile_id', profile_Id)
+                        .single();
+
+                    if (drivers) {
+                        //console.info('Logged in user driver info: ', drivers);
+                        const owner_id = drivers.id
+                        //console.log('Logged in user driver id', owner_id)
+                        setDriverEmployerId(drivers.employer_id);
+                        setDriverId(drivers.id);
+                    } else {
+                        console.error('Error fetching driver info', error);
+                    }
+                }
+
+                // for owners
                 if ((role_id === 2) || (role_id === 3)) {
                     let { data: owners, error } = await supabase
                         .from('owners')
@@ -268,44 +289,52 @@ const Dashboard = ({ navigation }) => {
                 {/* drive dashboard start */}
                 {userRole === 4 && (
                     <View className='my-5 flex flex-row items-center justify-around'>
-                        <View className={'border border-slate-300 rounded-lg bg-white flex items-center'}>
+                        <View className={' flex items-center'}>
                             <IconButton
                                 icon={CustomStudentIcon}
-                                size={60}
-                                onPress={() => navigation.navigate('Student List', { userId: userId, roleId: userRole })}
+                                size={80}
+                                onPress={() => navigation.navigate('Student List', { userId: userId, roleId: userRole ,ownerId: driverEmployerId})}
                                 accessibilityLabel='Student'
+                                className='border border-slate-300 rounded-lg bg-white'
                             />
+                            <Text className='text-base font-medium antialiased'>Students</Text>
                         </View>
 
-                        <View className={'border border-slate-300 rounded-lg bg-white flex items-center'}>
+                        <View className={'flex items-center'}>
                             <IconButton
                                 icon={CustomSchoolIcon}
-                                size={60}
-                                onPress={() => navigation.navigate('School List', { userId: userId, roleId: userRole })}
+                                size={80}
+                                onPress={() => navigation.navigate('School List', { userId: userId, roleId: userRole ,ownerId: driverEmployerId})}
                                 accessibilityLabel='School'
+                                className='border border-slate-300 rounded-lg bg-white'
                             />
+                            <Text className='text-base font-medium antialiased'>Schools</Text>
                         </View>
 
-                        <View className={'border border-slate-300 rounded-lg bg-white flex items-center'}>
+                        <View className={'flex items-center'}>
                             <IconButton
                                 icon={CustomMoneyIcon}
-                                size={60}
-                                onPress={() => navigation.navigate('Payment Details', { userId: userId, roleId: userRole })}
+                                size={80}
+                                onPress={() => navigation.navigate('Payment Details', { userId: userId, roleId: userRole  ,ownerId: driverEmployerId})}
                                 accessibilityLabel='Payment'
+                                className='border border-slate-300 rounded-lg bg-white'
                             />
+                            <Text className='text-base font-medium antialiased'>Payment</Text>
                         </View>
                     </View>
                 )}
 
                 {userRole === 4 && (
                     <View className='m-5 flex flex-row items-center justify-start'>
-                        <View className={'border border-slate-300 rounded-lg bg-white flex items-center'}>
+                        <View className={'flex items-center'}>
                             <IconButton
                                 icon={CustomMaintenanceIcon}
-                                size={60}
-                                onPress={() => navigation.navigate('Vehicel Maintenance Record List', { userId: userId, roleId: userRole })}
+                                size={80}
+                                onPress={() => navigation.navigate('Vehicel Maintenance Record List', { userId: userId, roleId: userRole, ownerId: driverEmployerId })}
                                 accessibilityLabel='Maintenance'
+                                className='border border-slate-300 rounded-lg bg-white'
                             />
+                            <Text className='text-base font-medium antialiased'>Maintenance</Text>
                         </View>
                     </View>
                 )}

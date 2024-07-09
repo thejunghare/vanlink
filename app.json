@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "VanLink",
+    "name": "School Bus",
     "slug": "VanLink",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -22,6 +22,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "a7a421d6-fa6e-4429-b719-fb0a61df2201"
+      }
     }
   }
 }

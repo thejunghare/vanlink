@@ -1,64 +1,95 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { Button, TextInput } from 'react-native-paper';
-import { Picker } from '@react-native-picker/picker';
+import { View, ToastAndroid, StyleSheet, ScrollView } from 'react-native';
+import { Button, } from 'react-native-paper';
 import { Dropdown } from 'react-native-element-dropdown';
+import { supabase } from '../../lib/supabase';
 
-const school = [
-    { label: 'St. Marys', value: '1' },
-    { label: 'Sai Holy Faith', value: '2' },
-];
+const AddStudent = ({ route }) => {
+    const { userId, roleId, ownerId } = route.params;
+    console.info('user Id:', userId, 'role Id: ', roleId, 'owner Id: ', ownerId);
+    // for school
+    const [schoolDetails, setSchoolDetails] = React.useState([]);
+    const [selectedSchool, setSelectedSchool] = React.useState([]);
+    // for dirver
+    const [driverDetails, setDriverDetails] = React.useState([]);
+    const [selectedDriver, setSelectedDriver] = React.useState([]);
+    // for profile
+    const [profileDetails, setProfileDetails] = React.useState([]);
+    const [selectedProfile, setSelectedProfile] = React.useState([]);
 
-const driver = [
-    { label: 'Yogi Baba', value: '1' },
-    { label: 'John Cena', value: '2' },
-];
+    const fetchProfiles = async () => {
+        let { data: profiles, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('role_id', 5);
 
+        if (profiles) {
+            //console.info('profiles fetched', profiles);
+            setProfileDetails(profiles);
+            ToastAndroid.show('Profiles fetched!', ToastAndroid.SHORT);
 
-const student = [
-    { label: 'Prasad Junghare', value: '1' },
-    { label: 'Pooja Junghare', value: '2' },
-];
-
-const AddStudent = () => {
-    const [selectedStudentProfile, setSelectedStudentProfile] = React.useState(null);
-    const [selectSchool, setSelectedSchool] = React.useState(null);
-    const [selectDriver, setSelectedDriver] = React.useState(null);
-    const [isFocusProfile, setIsFocusProfile] = React.useState(false);
-    const [isFocusSchool, setIsFocusSchool] = React.useState(false);
-    const [isFocusDriver, setIsFocusDriver] = React.useState(false);
-
-    const renderStudentProfileLabel = () => {
-        if (selectedStudentProfile || isFocusProfile) {
-            return (
-                <Text style={[styles.label, isFocusProfile && { color: 'blue' }]}>
-                    Select Student Profile
-                </Text>
-            );
+            const mappedProfiles = profiles.map(profile => ({
+                label: profile.student_gr,
+                value: profile.id,
+            }));
+            setProfileDetails(mappedProfiles);
+        } else {
+            // console.error('error while fetching profiles', error);
+            ToastAndroid.show('Profiles fetched!', ToastAndroid.SHORT);
         }
-        return null;
     };
 
-    const renderSchoolLabel = () => {
-        if (selectSchool || isFocusSchool) {
-            return (
-                <Text style={[styles.label, isFocusSchool && { color: 'blue' }]}>
-                    Select School
-                </Text>
-            );
-        }
-    }
+    const fetchSchool = async () => {
+        let { data: schools, error } = await supabase
+            .from('schools')
+            .select('*')
+            .eq('owner_id', ownerId);
 
-    const renderDriverLabel = () => {
-        if (selectDriver || isFocusDriver) {
-            return (
-                <Text style={[styles.label, isFocusDriver && { color: 'blue' }]}>
-                    Select driver
-                </Text>
-            );
-        }
-    }
+        if (schools) {
+            //console.info('profiles fetched', schools);
+            //setSchoolDetails(schools);
+            ToastAndroid.show('Schools fetched!', ToastAndroid.SHORT);
 
+            const mappedSchools = schools.map(school => ({
+                label: school.school_name,
+                value: school.id,
+            }));
+            setSchoolDetails(mappedSchools);
+        } else {
+            // console.error('error while fetching schools', error);
+            ToastAndroid.show('Schools fetched!', ToastAndroid.SHORT);
+        }
+    };
+
+    const fetchDrivers = async () => {
+        let { data: drivers, error } = await supabase
+            .from('drivers')
+            .select('*')
+            .eq('employer_id', ownerId);
+
+        if (drivers) {
+            //console.info('profiles fetched', schools);
+            //setSchoolDetails(schools);
+            ToastAndroid.show('Schools fetched!', ToastAndroid.SHORT);
+
+            const mappedDrivers = drivers.map(driver => ({
+                label: driver.profile_id,
+                value: driver.id,
+            }));
+            setDriverDetails(mappedDrivers);
+        } else {
+            // console.error('error while fetching schools', error);
+            ToastAndroid.show('Schools fetched!', ToastAndroid.SHORT);
+        }
+    };
+
+    React.useEffect(() => {
+        fetchProfiles();
+        fetchSchool();
+        fetchDrivers();
+    }, []);
+
+    // TODO:insert funciton
 
     return (
         <ScrollView className={'px-3 flex-1'}>
@@ -66,75 +97,63 @@ const AddStudent = () => {
                 <View className='h-3/4'>
                     {/* select student profile */}
                     <View className='bg-white mt-3'>
-                        {renderStudentProfileLabel()}
                         <Dropdown
-                            style={[styles.dropdown, isFocusProfile && { borderColor: 'blue' }]}
+                            style={[styles.dropdown]}
                             placeholderStyle={styles.placeholderStyle}
                             selectedTextStyle={styles.selectedTextStyle}
                             inputSearchStyle={styles.inputSearchStyle}
-                            data={student}
+                            data={profileDetails}
                             search
                             maxHeight={250}
                             labelField="label"
                             valueField="value"
-                            placeholder={!isFocusProfile ? 'Select Student Profile' : '...'}
+                            placeholder={'Select Student Profile'}
                             searchPlaceholder="Search profile"
-                            value={selectedStudentProfile}
-                            onFocus={() => setIsFocusProfile(true)}
-                            onBlur={() => setIsFocusProfile(false)}
+                            value={selectedProfile}
                             onChange={item => {
-                                setSelectedStudentProfile(item.value);
-                                setIsFocusProfile(false);
+                                setSelectedProfile(item.value);
                             }}
                         />
                     </View>
 
                     {/* select school */}
                     <View className='bg-white mt-3'>
-                        {renderSchoolLabel()}
                         <Dropdown
-                            style={[styles.dropdown, isFocusSchool && { borderColor: 'blue' }]}
+                            style={[styles.dropdown]}
                             placeholderStyle={styles.placeholderStyle}
                             selectedTextStyle={styles.selectedTextStyle}
                             inputSearchStyle={styles.inputSearchStyle}
-                            data={school}
+                            data={schoolDetails}
                             search
                             maxHeight={250}
                             labelField="label"
                             valueField="value"
-                            placeholder={!isFocusSchool ? 'Select School' : '...'}
+                            placeholder={'Select School'}
                             searchPlaceholder="Search school"
-                            value={selectSchool}
-                            onFocus={() => setIsFocusSchool(true)}
-                            onBlur={() => setIsFocusSchool(false)}
+                            value={selectedSchool}
                             onChange={item => {
                                 setSelectedSchool(item.value);
-                                setIsFocusSchool(false);
                             }}
                         />
                     </View>
 
                     {/* assign driver */}
                     <View className='bg-white mt-3'>
-                        {renderDriverLabel()}
                         <Dropdown
-                            style={[styles.dropdown, isFocusDriver && { borderColor: 'blue' }]}
+                            style={[styles.dropdown]}
                             placeholderStyle={styles.placeholderStyle}
                             selectedTextStyle={styles.selectedTextStyle}
                             inputSearchStyle={styles.inputSearchStyle}
-                            data={driver}
+                            data={driverDetails}
                             search
                             maxHeight={250}
                             labelField="label"
                             valueField="value"
-                            placeholder={!isFocusDriver ? 'Select Driver' : '...'}
+                            placeholder={'Select Driver'}
                             searchPlaceholder="Search driver"
-                            value={selectDriver}
-                            onFocus={() => setIsFocusDriver(true)}
-                            onBlur={() => setIsFocusDriver(false)}
+                            value={selectedDriver}
                             onChange={item => {
                                 setSelectedDriver(item.value);
-                                setIsFocusDriver(false);
                             }}
                         />
                     </View>

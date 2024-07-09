@@ -1,14 +1,44 @@
 import React from 'react';
-import { View, Text, ToastAndroid, ScrollView } from 'react-native';
+import { View, Text, ToastAndroid, ScrollView, StyleSheet } from 'react-native';
 import { Button, TextInput } from 'react-native-paper';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { Dropdown } from 'react-native-element-dropdown';
 import { supabase } from '../../lib/supabase';
 
-const AddVehicleMaintenanceRecord = () => {
+const AddVehicleMaintenanceRecord = ({ route }) => {
+    const { userId, roleId, ownerId } = route.params;
+    // console.log(userId, roleId, ownerId);
     const [showDatePicker, setShowDatePicker] = React.useState(false);
     const [selectedDate, setSelectedDate] = React.useState(new Date());
     const [maintenanceDescription, setMaintenanceDescription] = React.useState('');
     const [maintenanceCost, setMaintenanceCost] = React.useState('');
+    // for vehicle picker
+    const [vehicleDetails, setVehicleDetails] = React.useState([]);
+    const [selectedVehicle, setSelectedVehicle] = React.useState([]);
+
+    const fetchVehicles = async () => {
+        let { data: vehicles, error } = await supabase
+            .from('vehicles')
+            .select('*')
+            .eq('owner_id', ownerId);
+
+        if (vehicles) {
+            console.info('vehicles fetched!');
+
+            const mappedVehicles = vehicles.map(vehicle => ({
+                label: vehicle.vehicle_number,
+                value: vehicle.id,
+            }));
+
+            setVehicleDetails(mappedVehicles);
+        } else {
+            console.error('Failed to fetch vehilces!', error);
+        }
+    }
+
+    React.useEffect(() => {
+        fetchVehicles();
+    }, [])
 
     const resetFields = () => {
         setMaintenanceCost('');
@@ -34,7 +64,7 @@ const AddVehicleMaintenanceRecord = () => {
                     maintenance_description: maintenanceDescription,
                     maintenance_cost: maintenanceCost,
                     driver_id: 1,//TODO: replace with actually ID
-                    vehicle_id: 1 //TODO: replace with actually ID
+                    vehicle_id: selectedVehicle
                 }
             ]);
 
@@ -71,6 +101,26 @@ const AddVehicleMaintenanceRecord = () => {
                         />
                     )}
 
+                    <View className='bg-white mt-3'>
+                        <Dropdown
+                            style={[styles.dropdown]}
+                            placeholderStyle={styles.placeholderStyle}
+                            selectedTextStyle={styles.selectedTextStyle}
+                            inputSearchStyle={styles.inputSearchStyle}
+                            data={vehicleDetails}
+                            search
+                            maxHeight={250}
+                            labelField="label"
+                            valueField="value"
+                            placeholder={'Select vehicle'}
+                            searchPlaceholder="Search vehicle"
+                            value={selectedVehicle}
+                            onChange={item => {
+                                setSelectedVehicle(item.value);
+                            }}
+                        />
+                    </View>
+
                     {/* description */}
                     <TextInput
                         label='Maintenance Description*'
@@ -102,5 +152,45 @@ const AddVehicleMaintenanceRecord = () => {
         </ScrollView>
     );
 };
+
+const styles = StyleSheet.create({
+    container: {
+        backgroundColor: 'white',
+        padding: 16,
+    },
+    dropdown: {
+        height: 50,
+        borderColor: 'gray',
+        borderWidth: 0.5,
+        borderRadius: 8,
+        paddingHorizontal: 8,
+    },
+    icon: {
+        marginRight: 5,
+    },
+    label: {
+        position: 'absolute',
+        backgroundColor: 'white',
+        left: 22,
+        top: 8,
+        zIndex: 999,
+        paddingHorizontal: 8,
+        fontSize: 14,
+    },
+    placeholderStyle: {
+        fontSize: 16,
+    },
+    selectedTextStyle: {
+        fontSize: 16,
+    },
+    iconStyle: {
+        width: 20,
+        height: 20,
+    },
+    inputSearchStyle: {
+        height: 40,
+        fontSize: 16,
+    },
+});
 
 export default AddVehicleMaintenanceRecord;

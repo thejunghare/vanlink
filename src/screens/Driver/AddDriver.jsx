@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, ToastAndroid, StyleSheet } from 'react-native';
-import { Text, Button, } from 'react-native-paper';
+import { Button, } from 'react-native-paper';
 import { Dropdown } from 'react-native-element-dropdown';
 import { supabase } from '../../lib/supabase';
 
@@ -8,10 +8,9 @@ const AddDriver = ({ route }) => {
     const { userId, roleId, ownerId } = route.params;
     console.info('user Id:', userId, 'role Id: ', roleId, 'owner Id: ', ownerId);
 
-    const [selectedLanguage, setSelectedLanguage] = React.useState();
     const [profilesDetails, setProfilesDetails] = React.useState([]);
-    const [vehiclesDetails, setVehiclesDetails] = React.useState([]);
     const [selectedProfile, setSelectedProfile] = React.useState('');
+    const [vehiclesDetails, setVehiclesDetails] = React.useState([]);
     const [selectedVehicle, setSelectedVehicle] = React.useState('');
 
     const fetchDriverProfilesDetails = async () => {
@@ -64,7 +63,32 @@ const AddDriver = ({ route }) => {
         fetchVehicleDetails();
     }, []);
 
-    // TODO: create insert function
+    const insertDriver = async () => {
+        // get the profile id and vehicle to assign
+        const { error } = await supabase
+            .from('drivers')
+            .insert([
+                {
+                    'profile_id': selectedProfile,
+                    'employer_id': ownerId,
+                    'vehicle_id': selectedVehicle
+                }
+            ]);
+
+        if (error) {
+            console.error('Error adding driver: ', error);
+            ToastAndroid.show('Error adding driver!', ToastAndroid.SHORT);
+        } else {
+            console.info('Driver Added!');
+            resetFields();
+            ToastAndroid.show('Driver Added!', ToastAndroid.SHORT);
+        }
+    };
+
+    const resetFields = () => {
+        setSelectedProfile('');
+        setSelectedVehicle('');
+    }
 
     return (
         <View className={'px-3 flex-1 h-screen justify-evenly'}>
@@ -111,7 +135,7 @@ const AddDriver = ({ route }) => {
             </View>
 
             <View className='h-1/5 m-5 flex items-center justify-center'>
-                <Button icon="plus" mode="contained">
+                <Button icon="plus" mode="contained" onPress={insertDriver}>
                     Add Driver
                 </Button>
             </View>

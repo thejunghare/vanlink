@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { supabase } from '../../lib/supabase';
 
 const StudentList = ({ route }) => {
-    const { roleId, userId } = route.params;
+    const { roleId, userId, ownerId } = route.params;
     const navigation = useNavigation();
     const [searchQuery, setSearchQuery] = React.useState('');
     const [page, setPage] = React.useState(0);
@@ -115,7 +115,7 @@ const StudentList = ({ route }) => {
 
                 {(roleId === 2 || roleId === 3) && (
                     <View className='h-1/5 m-5 flex items-center justify-center'>
-                        <Button icon='plus' mode='contained' onPress={() => navigation.navigate('Add Student')}>Add
+                        <Button icon='plus' mode='contained' onPress={() => navigation.navigate('Add Student', { userId: userId, roleId: roleId, ownerId: ownerId })}>Add
                             Student</Button>
                     </View>
                 )}

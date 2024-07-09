@@ -5,7 +5,8 @@ import { useNavigation } from '@react-navigation/native';
 import { supabase } from '../../lib/supabase';
 
 const VehicleMaintenanceRecordList = ({ route }) => {
-    const { userId, roleId } = route.params;
+    const { userId, roleId, ownerId } = route.params;
+    // console.log(userId, roleId, ownerId);
     const navigation = useNavigation();
     const [searchQuery, setSearchQuery] = React.useState("");
     const [page, setPage] = React.useState(0);
@@ -123,7 +124,7 @@ const VehicleMaintenanceRecordList = ({ route }) => {
                     <Button
                         icon='plus'
                         mode='contained'
-                        onPress={() => navigation.navigate('Add Vehicel Maintenance Record')}
+                        onPress={() => navigation.navigate('Add Vehicel Maintenance Record', { userId: userId, roleId: roleId, ownerId: ownerId })}
                     >
                         Add Record
                     </Button>

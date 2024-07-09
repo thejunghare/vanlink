@@ -1,49 +1,43 @@
 import React from 'react';
 import { View, RefreshControl, ScrollView, ToastAndroid, StyleSheet } from 'react-native';
-import { Text, Button, DataTable, IconButton, Searchbar } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Button, DataTable, TextInput } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { supabase } from '../../lib/supabase';
 
-const data = [
-    { label: 'Item 1', value: '1' },
-    { label: 'Item 2', value: '2' },
-    { label: 'Item 3', value: '3' },
-    { label: 'Item 4', value: '4' },
-    { label: 'Item 5', value: '5' },
-    { label: 'Item 6', value: '6' },
-    { label: 'Item 7', value: '7' },
-    { label: 'Item 8', value: '8' },
+const months = [
+    { label: 'January', value: '1' },
+    { label: 'February', value: '2' },
+    { label: 'March', value: '3' },
+    { label: 'April', value: '4' },
+    { label: 'May', value: '5' },
+    { label: 'June', value: '6' },
+    { label: 'July', value: '7' },
+    { label: 'August', value: '8' },
+    { label: 'September', value: '9' },
+    { label: 'October', value: '10' },
+    { label: 'November', value: '11' },
+    { label: 'December', value: '12' },
 ];
 
 const ListPaymentDetails = ({ route }) => {
-    const { roleId, userId } = route.params;
+    const { roleId, userId, ownerId } = route.params;
     const navigation = useNavigation();
     const [page, setPage] = React.useState(0);
     const [numberOfItemsPerPageList] = React.useState([2, 3, 4]);
     const [itemsPerPage, onItemsPerPageChange] = React.useState(numberOfItemsPerPageList[0]);
     const [refreshing, setRefreshing] = React.useState();
     const [schools, setSchools] = React.useState([]);
-    const [value, setValue] = React.useState(null);
-    const [isFocus, setIsFocus] = React.useState(false);
-
-    const renderLabel = () => {
-        if (value || isFocus) {
-            return (
-                <Text style={[styles.label, isFocus && { color: 'blue' }]}>
-                    Select School
-                </Text>
-            );
-        }
-        return null;
-    };
+    // for school picker
+    const [schoolDetails, setSchoolDetails] = React.useState([]);
+    const [selectedSchool, setSelectedSchool] = React.useState([]);
+    const [year, setYear] = React.useState('');
 
     const fetchSchools = async () => {
         let { data: schools, error } = await supabase
             .from('schools')
             .select('*')
-            .eq('owner_id', 1); // Todo: replace wiht actual ID
+            .eq('owner_id', ownerId);
 
         if (error) {
             //console.error("Error fetching schools:", error);
@@ -53,25 +47,13 @@ const ListPaymentDetails = ({ route }) => {
 
         if (schools) {
             //console.info('Schools fetched', schools);
-            setSchools(schools);
-            //schools.forEach((school) => console.log(school.school_name));
-            //schools.forEach((school) => console.log(school.id));
-        }
-    }
+            ToastAndroid.show('Schools Fetched!', ToastAndroid.SHORT);
+            const mappedSchools = schools.map(school => ({
+                label: school.school_name,
+                value: school.id,
+            }));
 
-    const deleteSchool = async (school_id) => {
-        const { error } = await supabase
-            .from('schools')
-            .delete()
-            .eq('id', 5); // Todo: replace wiht actual ID
-
-        if (!error) {
-            //console.info('School removed');
-            ToastAndroid.show('Removed !', ToastAndroid.SHORT);
-            fetchSchools();
-        } else {
-            //console.info('Removed failed !');
-            ToastAndroid.show('Removed failed !', ToastAndroid.SHORT);
+            setSchoolDetails(mappedSchools)
         }
     }
 
@@ -92,66 +74,102 @@ const ListPaymentDetails = ({ route }) => {
 
     return (
         <ScrollView
-            ScrollView
-            className={'flex-1'}
             refreshControl={
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }
         >
-            <View className='bg-white m-2'>
-                {renderLabel()}
-                <Dropdown
-                    style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
-                    placeholderStyle={styles.placeholderStyle}
-                    selectedTextStyle={styles.selectedTextStyle}
-                    inputSearchStyle={styles.inputSearchStyle}
-                    data={data}
-                    search
-                    maxHeight={250}
-                    labelField="label"
-                    valueField="value"
-                    placeholder={!isFocus ? 'Select School' : '...'}
-                    searchPlaceholder="Search school"
-                    value={value}
-                    onFocus={() => setIsFocus(true)}
-                    onBlur={() => setIsFocus(false)}
-                    onChange={item => {
-                        setValue(item.value);
-                        setIsFocus(false);
-                    }}
-                />
+            <View className='h-screen flex justify-evenly'>
+                <View className='h-3/4'>
+                    {/* select school */}
+                    <View className='bg-white m-2'>
+                        <Dropdown
+                            style={[styles.dropdown]}
+                            placeholderStyle={styles.placeholderStyle}
+                            selectedTextStyle={styles.selectedTextStyle}
+                            inputSearchStyle={styles.inputSearchStyle}
+                            data={schoolDetails}
+                            search
+                            maxHeight={250}
+                            labelField="label"
+                            valueField="value"
+                            placeholder={'Select School'}
+                            searchPlaceholder="Search school"
+                            value={selectedSchool}
+                            onChange={item => {
+                                setSelectedSchool(item.value);
+                            }}
+                        />
+                    </View>
+
+                    {/* select month */}
+                    <View className='flex flex-row items-center justify-between'>
+                        <View className='w-2/5 bg-white m-2'>
+                            <Dropdown
+                                style={[styles.dropdown]}
+                                placeholderStyle={styles.placeholderStyle}
+                                selectedTextStyle={styles.selectedTextStyle}
+                                inputSearchStyle={styles.inputSearchStyle}
+                                data={months}
+                                search
+                                maxHeight={250}
+                                labelField="label"
+                                valueField="value"
+                                placeholder={'Select month'}
+                                searchPlaceholder="Search school"
+                                value={selectedSchool}
+                                onChange={item => {
+                                    setSelectedSchool(item.value);
+                                }}
+                            />
+                        </View>
+
+                        {/* select year */}
+                        <View className='w-2/5 m-2'>
+                            <TextInput
+                                label="Year"
+                                placeholder='Enter year'
+                                className={'my-3'}
+                                mode='outlined'
+                                onChangeText={setYear}
+                                value={year}
+                            />
+                        </View>
+                    </View>
+
+
+                    <DataTable>
+                        <DataTable.Header>
+                            <DataTable.Title>Student Name</DataTable.Title>
+                            <DataTable.Title numeric>Fees Status</DataTable.Title>
+                        </DataTable.Header>
+
+                        {schools.slice(from, to).map((item) => (
+                            <DataTable.Row key={item.key}>
+                                <DataTable.Cell>{item.student_id}</DataTable.Cell>
+                                <DataTable.Cell numeric>{item.calories}</DataTable.Cell>
+                            </DataTable.Row>
+                        ))}
+
+                        <DataTable.Pagination
+                            page={page}
+                            numberOfPages={Math.ceil(schools.length / itemsPerPage)}
+                            onPageChange={(page) => setPage(page)}
+                            label={`${from + 1}-${to} of ${schools.length}`}
+                            numberOfItemsPerPageList={numberOfItemsPerPageList}
+                            numberOfItemsPerPage={itemsPerPage}
+                            onItemsPerPageChange={onItemsPerPageChange}
+                            showFastPaginationControls
+                            selectPageDropdownLabel={'Rows per page'}
+                        />
+                    </DataTable>
+                </View>
+
+
+
+                <View className='h-1/5 m-5 flex items-center justify-center'>
+                    <Button icon='plus' mode='contained' onPress={() => navigation.navigate('Add Payment Details', { userId: userId, roleId: roleId, ownerId: ownerId })}>Add Collection</Button>
+                </View>
             </View>
-
-            <DataTable>
-                <DataTable.Header>
-                    <DataTable.Title>Student Name</DataTable.Title>
-                    <DataTable.Title numeric>Fees Status</DataTable.Title>
-                </DataTable.Header>
-
-                {schools.slice(from, to).map((item) => (
-                    <DataTable.Row key={item.key}>
-                        <DataTable.Cell>{item.student_id}</DataTable.Cell>
-                        <DataTable.Cell numeric>{item.calories}</DataTable.Cell>
-                    </DataTable.Row>
-                ))}
-
-                <DataTable.Pagination
-                    page={page}
-                    numberOfPages={Math.ceil(schools.length / itemsPerPage)}
-                    onPageChange={(page) => setPage(page)}
-                    label={`${from + 1}-${to} of ${schools.length}`}
-                    numberOfItemsPerPageList={numberOfItemsPerPageList}
-                    numberOfItemsPerPage={itemsPerPage}
-                    onItemsPerPageChange={onItemsPerPageChange}
-                    showFastPaginationControls
-                    selectPageDropdownLabel={'Rows per page'}
-                />
-            </DataTable>
-
-            <View className='m-5 flex items-center justify-center'>
-                <Button icon='plus' mode='contained' onPress={() => navigation.navigate('Add Payment Details')}>Add</Button>
-            </View>
-
         </ScrollView>
     );
 };

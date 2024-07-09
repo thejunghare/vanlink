@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { supabase } from '../../lib/supabase';
 
 const StudentList = ({ route }) => {
-    const { roleId, userId, ownerId } = route.params;
+    const { roleId, userId, ownerId, driverId } = route.params;
     const navigation = useNavigation();
     const [searchQuery, setSearchQuery] = React.useState('');
     const [page, setPage] = React.useState(0);
@@ -18,7 +18,7 @@ const StudentList = ({ route }) => {
         let { data: students, error } = await supabase
             .from('students')
             .select('*')
-            .eq('driver_id', 3); //TODO:Replace with actuall id
+            .eq('owner_id', ownerId); 
 
         if (!error) {
             //console.info('Student details fetched', students);

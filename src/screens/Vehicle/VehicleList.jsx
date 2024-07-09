@@ -1,12 +1,12 @@
 import React from 'react';
-import { View, RefreshControl, ScrollView, ToastAndroid } from 'react-native';
-import { Text, Button, DataTable, IconButton, Searchbar, } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
-import { supabase } from '../../lib/supabase';
+import {View, RefreshControl, ScrollView, ToastAndroid} from 'react-native';
+import {Text, Button, DataTable, IconButton, Searchbar,} from 'react-native-paper';
+import {useNavigation} from '@react-navigation/native';
+import {supabase} from '../../lib/supabase';
 
-const Vehicles = ({ route }) => {
-    const { userId, roleId, ownerId } = route.params;
-    console.info('Route params data on vehicle list screen: ', userId, roleId, ownerId);
+const Vehicles = ({route}) => {
+    const {userId, roleId, ownerId} = route.params;
+    console.info(ownerId, roleId, userId);
 
     const navigation = useNavigation();
     const [searchQuery, setSearchQuery] = React.useState("");
@@ -17,13 +17,13 @@ const Vehicles = ({ route }) => {
     const [refreshing, setRefreshing] = React.useState();
 
     const fetchVehicles = async () => {
-        const { data: vehicles, error: error } = await supabase
+        const {data: vehicles, error: error} = await supabase
             .from('vehicles')
             .select('*')
             .eq('owner_id', ownerId);
 
         if (error) {
-            //console.error('Error fetching vehicles:', error);
+            console.error('Error fetching vehicles:', error);
             ToastAndroid.show('Failed to fetch vehicle!', ToastAndroid.SHORT);
             return;
         }
@@ -41,7 +41,7 @@ const Vehicles = ({ route }) => {
     }, []);
 
     const deleteVehicle = async (id) => {
-        const { error } = await supabase
+        const {error} = await supabase
             .from('vehicles')
             .delete()
             .eq('id', id);
@@ -78,7 +78,7 @@ const Vehicles = ({ route }) => {
         <ScrollView
             className={'flex-1'}
             refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>
             }
         >
             <View className='h-screen flex justify-evenly'>
@@ -104,14 +104,14 @@ const Vehicles = ({ route }) => {
                                     <IconButton
                                         icon='eye'
                                         onPress={() =>
-                                            navigation.navigate('Vehicle Details', { vehicle })
+                                            navigation.navigate('Vehicle Details', {vehicle})
                                         }
                                     />
 
                                     <IconButton
                                         icon='pencil'
                                         onPress={() =>
-                                            navigation.navigate('Add Vehicle', { itemId: vehicle.id })
+                                            navigation.navigate('Add Vehicle', {itemId: vehicle.id})
                                         }
                                     />
 
@@ -142,7 +142,11 @@ const Vehicles = ({ route }) => {
                     <Button
                         icon='plus'
                         mode='contained'
-                        onPress={() => navigation.navigate('Add Vehicle', { userId: userId, roleId: roleId, ownerId: ownerId })}
+                        onPress={() => navigation.navigate('Add Vehicle', {
+                            userId: userId,
+                            roleId: roleId,
+                            ownerId: ownerId
+                        })}
                     >
                         Add Vehicle
                     </Button>

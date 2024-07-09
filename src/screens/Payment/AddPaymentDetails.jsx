@@ -1,21 +1,40 @@
 import React from 'react';
-import { View, ToastAndroid, StyleSheet } from 'react-native';
-import { Button, TextInput } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
-import { Dropdown } from 'react-native-element-dropdown';
-import { supabase } from '../../lib/supabase';
+import {View, ToastAndroid, StyleSheet} from 'react-native';
+import {Button, TextInput} from 'react-native-paper';
+import {useNavigation} from '@react-navigation/native';
+import {Dropdown} from 'react-native-element-dropdown';
+import {supabase} from '../../lib/supabase';
 
-const AddPaymentDetails = ({ route }) => {
-    const { roleId, userId, ownerId } = route.params;
+const months = [
+    {label: 'January', value: '1'},
+    {label: 'February', value: '2'},
+    {label: 'March', value: '3'},
+    {label: 'April', value: '4'},
+    {label: 'May', value: '5'},
+    {label: 'June', value: '6'},
+    {label: 'July', value: '7'},
+    {label: 'August', value: '8'},
+    {label: 'September', value: '9'},
+    {label: 'October', value: '10'},
+    {label: 'November', value: '11'},
+    {label: 'December', value: '12'},
+];
+
+const AddPaymentDetails = ({route}) => {
+    const {roleId, userId, ownerId, driverId} = route.params;
+    console.log(ownerId, driverId);
     const navigation = useNavigation();
     const [schoolDetails, setSchoolDetails] = React.useState([]);
     const [selectedSchool, setSelectedSchool] = React.useState([]);
-
-    // const [schoolDetails, setSchoolDetails] = React.useState([]);
-    // const [selectedSchool, setSelectedSchool] = React.useState([]);
+    const [studentDetails, setStudentDetails] = React.useState([]);
+    const [selectedStudent, setSelectedStudent] = React.useState([]);
+    const [collectionYear, setCollectionYear] = React.useState('');
+    const [collectionMonth, setCollectionMonth] = React.useState([]);
+    const [totalCollection, setTotalCollection] = React.useState('');
+    const [totalFees, setTotalFees] = React.useState('');
 
     const fetchSchools = async () => {
-        let { data: schools, error } = await supabase
+        let {data: schools, error} = await supabase
             .from('schools')
             .select('*')
             .eq('owner_id', ownerId);
@@ -38,8 +57,68 @@ const AddPaymentDetails = ({ route }) => {
         }
     }
 
+    const fetchStudent = async () => {
+        let {data: students, error} = await supabase
+            .from('students')
+            .select('*')
+            .eq('owner_id', ownerId);
+
+        if (error) {
+            //console.error("Error fetching students:", error);
+            ToastAndroid.show('error fetching schools !', ToastAndroid.SHORT);
+            return;
+        }
+
+        if (students) {
+            //console.info('Student fetched', students);
+            ToastAndroid.show('Students Fetched!', ToastAndroid.SHORT);
+            const mappedStudent = students.map(student => ({
+                label: student.profile_id,
+                value: student.id,
+            }));
+
+            setStudentDetails(mappedStudent)
+        }
+    }
+
+    const resetFields = () => {
+        setSelectedSchool([]);
+        setSelectedStudent([]);
+        setCollectionYear('');
+        setCollectionMonth('');
+        setTotalCollection('');
+        setTotalFees();
+    }
+
+    const insertCollections = async () => {
+        const {error} = await supabase
+            .from('student_fees_collection')
+            .insert([
+                {
+                    school_id: selectedSchool,
+                    student_id: selectedStudent,
+                    total_fees: totalFees,
+                    collection: totalCollection,
+                    year: collectionYear,
+                    month: collectionMonth,
+                    driver_id: driverId,
+                    owner_id: ownerId
+                }
+            ]);
+
+        if (!error) {
+            console.info('Added!');
+            ToastAndroid.show('Collection added!', ToastAndroid.SHORT);
+            resetFields();
+        } else {
+            console.log('Error', error);
+            ToastAndroid.show('Error adding collection!', ToastAndroid.SHORT);
+        }
+    }
+
     React.useEffect(() => {
         fetchSchools();
+        fetchStudent();
     }, []);
 
     return (
@@ -72,16 +151,16 @@ const AddPaymentDetails = ({ route }) => {
                         placeholderStyle={styles.placeholderStyle}
                         selectedTextStyle={styles.selectedTextStyle}
                         inputSearchStyle={styles.inputSearchStyle}
-                        data={schoolDetails}
+                        data={studentDetails}
                         search
                         maxHeight={250}
                         labelField="label"
                         valueField="value"
                         placeholder={'Select student'}
                         searchPlaceholder="Search student"
-                        value={selectedSchool}
+                        value={selectedStudent}
                         onChange={item => {
-                            setSelectedSchool(item.value);
+                            setSelectedStudent(item.value);
                         }}
                     />
                 </View>
@@ -92,7 +171,10 @@ const AddPaymentDetails = ({ route }) => {
                         label='Total Fees'
                         placeholder='Enter total fees'
                         className={' w-2/5'}
+                        keyboardType={"number-pad"}
                         mode='outlined'
+                        onChangeText={setTotalFees}
+                        value={totalFees}
                     />
 
                     {/* collection */}
@@ -100,13 +182,51 @@ const AddPaymentDetails = ({ route }) => {
                         label='Collection Amount'
                         placeholder='Enter collection amount'
                         className={' w-1/2'}
+                        keyboardType={"number-pad"}
                         mode='outlined'
+                        onChangeText={setTotalCollection}
+                        value={totalCollection}
                     />
+                </View>
+
+                <View className='flex flex-row items-center justify-evenly my-1'>
+                    {/* collection year */}
+                    <TextInput
+                        label='Collection Year'
+                        placeholder='Enter collection year'
+                        className={' w-2/5'}
+                        keyboardType={"number-pad"}
+                        mode='outlined'
+                        onChangeText={setCollectionYear}
+                        value={collectionYear}
+                    />
+
+                    {/* collection month */}
+                    <View className='w-1/2 bg-white m-2'>
+                        <Dropdown
+                            style={[styles.dropdown]}
+                            placeholderStyle={styles.placeholderStyle}
+                            selectedTextStyle={styles.selectedTextStyle}
+                            inputSearchStyle={styles.inputSearchStyle}
+                            data={months}
+                            search
+                            maxHeight={250}
+                            labelField="label"
+                            valueField="value"
+                            placeholder={'Select month'}
+                            searchPlaceholder="Search month"
+                            value={collectionMonth}
+                            onChange={item => {
+                                setCollectionMonth(item.value);
+                            }}
+                        />
+                    </View>
                 </View>
             </View>
 
             <View className='h-1/5 m-5 flex items-center justify-center'>
-                <Button icon='plus' mode='contained' onPress={() => navigation.navigate('Add Payment Details')}>Add Collection</Button>
+                <Button icon='plus' mode='contained' onPress={insertCollections}>Add
+                    Collection</Button>
             </View>
         </View>
     );

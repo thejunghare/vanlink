@@ -1,11 +1,11 @@
 import React from 'react';
-import { View, RefreshControl, ScrollView, ToastAndroid } from 'react-native';
-import { Text, Button, DataTable, IconButton, Searchbar, } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
-import { supabase } from '../../lib/supabase';
+import {View, RefreshControl, ScrollView, ToastAndroid} from 'react-native';
+import {Text, Button, DataTable, IconButton, Searchbar,} from 'react-native-paper';
+import {useNavigation} from '@react-navigation/native';
+import {supabase} from '../../lib/supabase';
 
-const VehicleMaintenanceRecordList = ({ route }) => {
-    const { userId, roleId, ownerId } = route.params;
+const VehicleMaintenanceRecordList = ({route}) => {
+    const {userId, roleId, ownerId, driverId} = route.params;
     // console.log(userId, roleId, ownerId);
     const navigation = useNavigation();
     const [searchQuery, setSearchQuery] = React.useState("");
@@ -16,10 +16,10 @@ const VehicleMaintenanceRecordList = ({ route }) => {
     const [refreshing, setRefreshing] = React.useState();
 
     const fetchVehicleMaintenancetRecord = async () => {
-        let { data: vehicle_maintenance_record, error } = await supabase
+        let {data: vehicle_maintenance_record, error} = await supabase
             .from('vehicle_maintenance_record')
             .select('*')
-            .eq('driver_id', 3) //Todo: Replace with acutall id
+            .eq('owner_id', ownerId);
 
         if (vehicle_maintenance_record) {
             console.info('Records fetched!', vehicle_maintenance_record);
@@ -32,7 +32,7 @@ const VehicleMaintenanceRecordList = ({ route }) => {
     }
 
     const deleteVehicle = async (id) => {
-        const { error } = await supabase
+        const {error} = await supabase
             .from('vehicle_maintenance_record')
             .delete()
             .eq('id', id);
@@ -66,7 +66,7 @@ const VehicleMaintenanceRecordList = ({ route }) => {
         <ScrollView
             className={'flex-1'}
             refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>
             }>
 
             <View className='h-screen flex justify-evenly'>
@@ -87,14 +87,14 @@ const VehicleMaintenanceRecordList = ({ route }) => {
                                     <IconButton
                                         icon='eye'
                                         onPress={() =>
-                                            navigation.navigate('Vehicel Maintenance Record Details', { vehiclesRecord })
+                                            navigation.navigate('Vehicel Maintenance Record Details', {vehiclesRecord})
                                         }
                                     />
 
                                     <IconButton
                                         icon='pencil'
                                         onPress={() =>
-                                            navigation.navigate('Add Vehicle', { itemId: vehiclesRecord.id })
+                                            navigation.navigate('Add Vehicle', {itemId: vehiclesRecord.id})
                                         }
                                     />
 
@@ -124,7 +124,12 @@ const VehicleMaintenanceRecordList = ({ route }) => {
                     <Button
                         icon='plus'
                         mode='contained'
-                        onPress={() => navigation.navigate('Add Vehicel Maintenance Record', { userId: userId, roleId: roleId, ownerId: ownerId })}
+                        onPress={() => navigation.navigate('Add Vehicel Maintenance Record', {
+                            userId: userId,
+                            roleId: roleId,
+                            ownerId: ownerId,
+                            driverId: driverId
+                        })}
                     >
                         Add Record
                     </Button>

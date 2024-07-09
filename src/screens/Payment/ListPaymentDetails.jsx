@@ -1,40 +1,44 @@
 import React from 'react';
-import { View, RefreshControl, ScrollView, ToastAndroid, StyleSheet } from 'react-native';
-import { Button, DataTable, TextInput } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
-import { Dropdown } from 'react-native-element-dropdown';
-import { supabase } from '../../lib/supabase';
+import {View, RefreshControl, ScrollView, ToastAndroid, StyleSheet} from 'react-native';
+import {Button, DataTable, TextInput} from 'react-native-paper';
+import {useNavigation} from '@react-navigation/native';
+import {Dropdown} from 'react-native-element-dropdown';
+import {supabase} from '../../lib/supabase';
 
 const months = [
-    { label: 'January', value: '1' },
-    { label: 'February', value: '2' },
-    { label: 'March', value: '3' },
-    { label: 'April', value: '4' },
-    { label: 'May', value: '5' },
-    { label: 'June', value: '6' },
-    { label: 'July', value: '7' },
-    { label: 'August', value: '8' },
-    { label: 'September', value: '9' },
-    { label: 'October', value: '10' },
-    { label: 'November', value: '11' },
-    { label: 'December', value: '12' },
+    {label: 'January', value: '1'},
+    {label: 'February', value: '2'},
+    {label: 'March', value: '3'},
+    {label: 'April', value: '4'},
+    {label: 'May', value: '5'},
+    {label: 'June', value: '6'},
+    {label: 'July', value: '7'},
+    {label: 'August', value: '8'},
+    {label: 'September', value: '9'},
+    {label: 'October', value: '10'},
+    {label: 'November', value: '11'},
+    {label: 'December', value: '12'},
 ];
 
-const ListPaymentDetails = ({ route }) => {
-    const { roleId, userId, ownerId } = route.params;
+const ListPaymentDetails = ({route}) => {
+    const {roleId, userId, ownerId, driverId} = route.params;
+    console.log(ownerId, driverId);
     const navigation = useNavigation();
     const [page, setPage] = React.useState(0);
     const [numberOfItemsPerPageList] = React.useState([2, 3, 4]);
     const [itemsPerPage, onItemsPerPageChange] = React.useState(numberOfItemsPerPageList[0]);
     const [refreshing, setRefreshing] = React.useState();
-    const [schools, setSchools] = React.useState([]);
-    // for school picker
+    const [collectionDetails, setCollectionDetails] = React.useState([]);
+    // school picker
     const [schoolDetails, setSchoolDetails] = React.useState([]);
     const [selectedSchool, setSelectedSchool] = React.useState([]);
-    const [year, setYear] = React.useState('');
+    // collection Month
+    const [collectionMonth, setCollectiondMonth] = React.useState([]);
+    // collection year
+    const [collectionYear, setCollectionYear] = React.useState('');
 
     const fetchSchools = async () => {
-        let { data: schools, error } = await supabase
+        let {data: schools, error} = await supabase
             .from('schools')
             .select('*')
             .eq('owner_id', ownerId);
@@ -57,6 +61,22 @@ const ListPaymentDetails = ({ route }) => {
         }
     }
 
+    const fetchFeesDetails = async () => {
+        let {data: feesDetails, error} = await supabase
+            .from('student_fees_collection')
+            .select('*')
+            .eq('owner_id', ownerId)
+            .eq('year', collectionYear)
+            .eq('month', collectionMonth);
+
+        if (feesDetails) {
+            console.log('Details fetched!');
+            setCollectionDetails(feesDetails);
+        } else {
+            console.error('Failed to fetch details', error);
+        }
+    }
+
     const onRefresh = React.useCallback(() => {
         setRefreshing(true);
         setTimeout(() => {
@@ -67,15 +87,18 @@ const ListPaymentDetails = ({ route }) => {
     React.useEffect(() => {
         fetchSchools();
         setPage(0);
-    }, [itemsPerPage]);
+        if (collectionYear && collectionMonth) {
+            fetchFeesDetails();
+        }
+    }, [itemsPerPage, collectionYear, collectionMonth]);
 
     const from = page * itemsPerPage;
-    const to = Math.min((page + 1) * itemsPerPage, schools.length);
+    const to = Math.min((page + 1) * itemsPerPage, collectionDetails.length);
 
     return (
         <ScrollView
             refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>
             }
         >
             <View className='h-screen flex justify-evenly'>
@@ -116,9 +139,9 @@ const ListPaymentDetails = ({ route }) => {
                                 valueField="value"
                                 placeholder={'Select month'}
                                 searchPlaceholder="Search school"
-                                value={selectedSchool}
+                                value={collectionMonth}
                                 onChange={item => {
-                                    setSelectedSchool(item.value);
+                                    setCollectiondMonth(item.value);
                                 }}
                             />
                         </View>
@@ -129,9 +152,10 @@ const ListPaymentDetails = ({ route }) => {
                                 label="Year"
                                 placeholder='Enter year'
                                 className={'my-3'}
+                                keyboardType={"number-pad"}
                                 mode='outlined'
-                                onChangeText={setYear}
-                                value={year}
+                                onChangeText={setCollectionYear}
+                                value={collectionYear}
                             />
                         </View>
                     </View>
@@ -143,18 +167,20 @@ const ListPaymentDetails = ({ route }) => {
                             <DataTable.Title numeric>Fees Status</DataTable.Title>
                         </DataTable.Header>
 
-                        {schools.slice(from, to).map((item) => (
+                        {collectionDetails.slice(from, to).map((item) => (
                             <DataTable.Row key={item.key}>
-                                <DataTable.Cell>{item.student_id}</DataTable.Cell>
-                                <DataTable.Cell numeric>{item.calories}</DataTable.Cell>
+                                <DataTable.Cell>{item.id}</DataTable.Cell>
+                                <DataTable.Cell>
+                                    {item.total_fees === item.collection ? 'Paid' : 'Unpaid'}
+                                </DataTable.Cell>
                             </DataTable.Row>
                         ))}
 
                         <DataTable.Pagination
                             page={page}
-                            numberOfPages={Math.ceil(schools.length / itemsPerPage)}
+                            numberOfPages={Math.ceil(collectionDetails.length / itemsPerPage)}
                             onPageChange={(page) => setPage(page)}
-                            label={`${from + 1}-${to} of ${schools.length}`}
+                            label={`${from + 1}-${to} of ${collectionDetails.length}`}
                             numberOfItemsPerPageList={numberOfItemsPerPageList}
                             numberOfItemsPerPage={itemsPerPage}
                             onItemsPerPageChange={onItemsPerPageChange}
@@ -165,9 +191,13 @@ const ListPaymentDetails = ({ route }) => {
                 </View>
 
 
-
                 <View className='h-1/5 m-5 flex items-center justify-center'>
-                    <Button icon='plus' mode='contained' onPress={() => navigation.navigate('Add Payment Details', { userId: userId, roleId: roleId, ownerId: ownerId })}>Add Collection</Button>
+                    <Button icon='plus' mode='contained' onPress={() => navigation.navigate('Add Payment Details', {
+                        userId: userId,
+                        roleId: roleId,
+                        ownerId: ownerId,
+                        driverId: driverId
+                    })}>Add Collection</Button>
                 </View>
             </View>
         </ScrollView>

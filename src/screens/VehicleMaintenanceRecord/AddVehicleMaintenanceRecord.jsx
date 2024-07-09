@@ -1,13 +1,14 @@
 import React from 'react';
-import { View, Text, ToastAndroid, ScrollView, StyleSheet } from 'react-native';
-import { Button, TextInput } from 'react-native-paper';
+import {View, Text, ToastAndroid, ScrollView, StyleSheet} from 'react-native';
+import {Button, TextInput} from 'react-native-paper';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Dropdown } from 'react-native-element-dropdown';
-import { supabase } from '../../lib/supabase';
+import {Dropdown} from 'react-native-element-dropdown';
+import {supabase} from '../../lib/supabase';
 
-const AddVehicleMaintenanceRecord = ({ route }) => {
-    const { userId, roleId, ownerId } = route.params;
-    // console.log(userId, roleId, ownerId);
+const AddVehicleMaintenanceRecord = ({route}) => {
+    const {userId, roleId, ownerId, driverId} = route.params;
+    console.log(userId, roleId, ownerId, driverId);
+    
     const [showDatePicker, setShowDatePicker] = React.useState(false);
     const [selectedDate, setSelectedDate] = React.useState(new Date());
     const [maintenanceDescription, setMaintenanceDescription] = React.useState('');
@@ -17,7 +18,7 @@ const AddVehicleMaintenanceRecord = ({ route }) => {
     const [selectedVehicle, setSelectedVehicle] = React.useState([]);
 
     const fetchVehicles = async () => {
-        let { data: vehicles, error } = await supabase
+        let {data: vehicles, error} = await supabase
             .from('vehicles')
             .select('*')
             .eq('owner_id', ownerId);
@@ -56,15 +57,16 @@ const AddVehicleMaintenanceRecord = ({ route }) => {
     };
 
     const insertMaintenanceRecord = async () => {
-        const { error } = await supabase
+        const {error} = await supabase
             .from('vehicle_maintenance_record')
             .insert([
                 {
                     maintenance_date: selectedDate,
                     maintenance_description: maintenanceDescription,
                     maintenance_cost: maintenanceCost,
-                    driver_id: 1,//TODO: replace with actually ID
-                    vehicle_id: selectedVehicle
+                    vehicle_id: selectedVehicle,
+                    owner_id: ownerId,
+                    driver_id: driverId,
                 }
             ]);
 

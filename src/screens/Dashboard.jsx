@@ -170,12 +170,12 @@ const Dashboard = ({navigation}) => {
                 <Text variant='titleMedium' className='ml-5'>Management Dashboard</Text>
 
                 {/* logged in user details only for devlopment purpose */}
-                <View className='flex flex-row items-center justify-start'>
+{/*                <View className='flex flex-row items-center justify-start'>
                     <Text variant='titleMedium' className='ml-5'>user ID: {userRole}</Text>
                     <Text variant='titleMedium' className='ml-5'>owner ID: {ownerId}</Text>
                     <Text variant='titleMedium' className='ml-5'>Role ID: {userRole}</Text>
                     <Text variant='titleMedium' className='ml-5'>driver ID: {driverId}</Text>
-                </View>
+                </View>*/}
 
                 {/* owner dashboard start */}
                 {userRole === 2 && (
@@ -240,7 +240,7 @@ const Dashboard = ({navigation}) => {
                                 accessibilityLabel='Student'
                                 className='border border-slate-300 rounded-lg bg-white'
                             />
-                            <Text className='text-base font-medium antialiased tracking-wide'>School</Text>
+                            <Text className='text-base font-medium antialiased tracking-wide'>Student</Text>
                         </View>
                         <View className={'flex items-center'}>
                             <IconButton

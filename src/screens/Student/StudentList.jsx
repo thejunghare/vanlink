@@ -1,11 +1,11 @@
 import React from 'react';
-import { View, RefreshControl, ScrollView, ToastAndroid } from 'react-native';
-import { Text, Button, DataTable, IconButton, Searchbar } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
-import { supabase } from '../../lib/supabase';
+import {View, RefreshControl, ScrollView, ToastAndroid} from 'react-native';
+import {Text, Button, DataTable, IconButton, Searchbar} from 'react-native-paper';
+import {useNavigation} from '@react-navigation/native';
+import {supabase} from '../../lib/supabase';
 
-const StudentList = ({ route }) => {
-    const { roleId, userId, ownerId, driverId } = route.params;
+const StudentList = ({route}) => {
+    const {roleId, userId, ownerId, driverId} = route.params;
     const navigation = useNavigation();
     const [searchQuery, setSearchQuery] = React.useState('');
     const [page, setPage] = React.useState(0);
@@ -15,10 +15,10 @@ const StudentList = ({ route }) => {
     const [refreshing, setRefreshing] = React.useState();
 
     const fetchStudentDetails = async () => {
-        let { data: students, error } = await supabase
+        let {data: students, error} = await supabase
             .from('students')
             .select('*')
-            .eq('owner_id', ownerId); 
+            .eq('owner_id', ownerId);
 
         if (!error) {
             //console.info('Student details fetched', students);
@@ -27,6 +27,22 @@ const StudentList = ({ route }) => {
         } else {
             //console.error('Error while fetching student details', error);
             ToastAndroid.show('Error while fetching students!', ToastAndroid.SHORT);
+        }
+    }
+
+    const deleteStudent = async (id) => {
+        const {error} = await supabase
+            .from('students')
+            .delete()
+            .eq('id', id);
+
+        if (!error) {
+            console.info('Deleted student!');
+            ToastAndroid.show('Student deleted!', ToastAndroid.SHORT);
+            fetchStudentDetails();
+        } else {
+            console.error('Failed to delete!');
+            ToastAndroid.show('Failed to delete!', ToastAndroid.SHORT);
         }
     }
 
@@ -49,7 +65,7 @@ const StudentList = ({ route }) => {
         <ScrollView
             className={'flex-1'}
             refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>
             }>
 
             <View className='h-screen flex justify-evenly'>
@@ -70,19 +86,19 @@ const StudentList = ({ route }) => {
 
                         {students.slice(from, to).map((student) => (
                             <DataTable.Row key={student.id}>
-                                <DataTable.Cell>{student.student_fees}</DataTable.Cell>
+                                <DataTable.Cell>{student.profile_id}</DataTable.Cell>
                                 <DataTable.Cell numeric>
                                     <IconButton
                                         icon='eye'
                                         onPress={() =>
-                                            navigation.navigate('Student Details', { student })}
+                                            navigation.navigate('Student Details', {student})}
                                     />
 
                                     {(roleId === 2 || roleId === 3) && (
                                         <IconButton
                                             icon='pencil'
                                             onPress={() =>
-                                                navigation.navigate('Add Student', { itemKey: student.id })
+                                                navigation.navigate('Add Student', {itemKey: student.id})
                                             }
                                         />
                                     )}
@@ -90,9 +106,7 @@ const StudentList = ({ route }) => {
                                     {(roleId === 2 || roleId === 3) && (
                                         <IconButton
                                             icon='delete'
-                                            onPress={() =>
-                                                console.log('Delete', student.id)
-                                            }
+                                            onPress={() => deleteStudent(student.id)}
                                         />
                                     )}
                                 </DataTable.Cell>
@@ -115,7 +129,11 @@ const StudentList = ({ route }) => {
 
                 {(roleId === 2 || roleId === 3) && (
                     <View className='h-1/5 m-5 flex items-center justify-center'>
-                        <Button icon='plus' mode='contained' onPress={() => navigation.navigate('Add Student', { userId: userId, roleId: roleId, ownerId: ownerId })}>Add
+                        <Button icon='plus' mode='contained' onPress={() => navigation.navigate('Add Student', {
+                            userId: userId,
+                            roleId: roleId,
+                            ownerId: ownerId
+                        })}>Add
                             Student</Button>
                     </View>
                 )}

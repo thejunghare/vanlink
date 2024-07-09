@@ -1,11 +1,11 @@
 import React from 'react';
-import { View, ToastAndroid, StyleSheet, ScrollView } from 'react-native';
-import { Button, } from 'react-native-paper';
-import { Dropdown } from 'react-native-element-dropdown';
-import { supabase } from '../../lib/supabase';
+import {View, ToastAndroid, StyleSheet, ScrollView} from 'react-native';
+import {Button,} from 'react-native-paper';
+import {Dropdown} from 'react-native-element-dropdown';
+import {supabase} from '../../lib/supabase';
 
-const AddStudent = ({ route }) => {
-    const { userId, roleId, ownerId } = route.params;
+const AddStudent = ({route}) => {
+    const {userId, roleId, ownerId} = route.params;
     console.info('user Id:', userId, 'role Id: ', roleId, 'owner Id: ', ownerId);
     // for school
     const [schoolDetails, setSchoolDetails] = React.useState([]);
@@ -18,7 +18,7 @@ const AddStudent = ({ route }) => {
     const [selectedProfile, setSelectedProfile] = React.useState([]);
 
     const fetchProfiles = async () => {
-        let { data: profiles, error } = await supabase
+        let {data: profiles, error} = await supabase
             .from('profiles')
             .select('*')
             .eq('role_id', 5);
@@ -40,7 +40,7 @@ const AddStudent = ({ route }) => {
     };
 
     const fetchSchool = async () => {
-        let { data: schools, error } = await supabase
+        let {data: schools, error} = await supabase
             .from('schools')
             .select('*')
             .eq('owner_id', ownerId);
@@ -62,7 +62,7 @@ const AddStudent = ({ route }) => {
     };
 
     const fetchDrivers = async () => {
-        let { data: drivers, error } = await supabase
+        let {data: drivers, error} = await supabase
             .from('drivers')
             .select('*')
             .eq('employer_id', ownerId);
@@ -89,7 +89,33 @@ const AddStudent = ({ route }) => {
         fetchDrivers();
     }, []);
 
-    // TODO:insert funciton
+    const insertStudentDetails = async () => {
+        const {error} = await supabase
+            .from('students')
+            .insert([
+                {
+                    'profile_id': selectedProfile,
+                    'driver_id': selectedDriver,
+                    'student_school': selectedSchool,
+                    'owner_id': ownerId
+                }
+            ]);
+
+        if (!error) {
+            console.info('Student added!');
+            ToastAndroid.show('Student added!', ToastAndroid.SHORT);
+            resetFields();
+        } else {
+            console.error('Failed to added Student!', error);
+            ToastAndroid.show('Failed to added Student!', ToastAndroid.SHORT);
+        }
+    }
+
+    const resetFields = () => {
+        setSelectedDriver([]);
+        setSelectedProfile([]);
+        setSelectedSchool([]);
+    }
 
     return (
         <ScrollView className={'px-3 flex-1'}>
@@ -160,8 +186,8 @@ const AddStudent = ({ route }) => {
                 </View>
 
                 <View className='h-1/5 m-5 flex items-center justify-center'>
-                    <Button icon="plus" mode="contained">
-                        Add Student
+                    <Button icon='plus' mode='contained' onPress={insertStudentDetails}>
+                        Add School
                     </Button>
                 </View>
             </View>

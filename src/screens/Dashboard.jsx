@@ -1,8 +1,8 @@
 import React from 'react';
-import {View, Image,} from 'react-native';
-import {supabase} from '../lib/supabase';
-import {Searchbar, Button, Text, IconButton} from 'react-native-paper';
-import {StatusBar} from 'expo-status-bar';
+import { View, Image, } from 'react-native';
+import { supabase } from '../lib/supabase';
+import { Searchbar, Button, Text, IconButton } from 'react-native-paper';
+import { StatusBar } from 'expo-status-bar';
 import driverIcon from '../../assets/icons/driver.png';
 import vanMaintenanceIcon from '../../assets/icons/van.png';
 import schoolIcon from '../../assets/icons/school.png';
@@ -10,7 +10,7 @@ import studentIcon from '../../assets/icons/students.png';
 import moneyIcon from '../../assets/icons/money.png';
 import vehicleIcon from '../../assets/icons/vehicle.png';
 
-const Dashboard = ({navigation}) => {
+const Dashboard = ({ navigation }) => {
     const [searchQuery, setSearchQuery] = React.useState('');
     const [isProfileComplete, setIsProfileComplete] = React.useState(true);
     const [userRole, setUserRole] = React.useState(null);
@@ -20,21 +20,21 @@ const Dashboard = ({navigation}) => {
     const [driverEmployerId, setDriverEmployerId] = React.useState('');
     const [driverId, setDriverId] = React.useState('');
     const [ownerWithDriverId, setOwnerWithDriverId] = React.useState('');
-    const CustomVehicleIcon = () => (<Image source={vehicleIcon} style={{width: 70, height: 70}}/>);
-    const CustomDriverIcon = () => (<Image source={driverIcon} style={{width: 70, height: 70}}/>);
-    const CustomSchoolIcon = () => (<Image source={schoolIcon} style={{width: 70, height: 70}}/>);
-    const CustomStudentIcon = () => (<Image source={studentIcon} style={{width: 70, height: 70}}/>);
-    const CustomMoneyIcon = () => (<Image source={moneyIcon} style={{width: 70, height: 70}}/>);
-    const CustomMaintenanceIcon = () => (<Image source={vanMaintenanceIcon} style={{width: 70, height: 70}}/>);
+    const CustomVehicleIcon = () => (<Image source={vehicleIcon} style={{ width: 70, height: 70 }} />);
+    const CustomDriverIcon = () => (<Image source={driverIcon} style={{ width: 70, height: 70 }} />);
+    const CustomSchoolIcon = () => (<Image source={schoolIcon} style={{ width: 70, height: 70 }} />);
+    const CustomStudentIcon = () => (<Image source={studentIcon} style={{ width: 70, height: 70 }} />);
+    const CustomMoneyIcon = () => (<Image source={moneyIcon} style={{ width: 70, height: 70 }} />);
+    const CustomMaintenanceIcon = () => (<Image source={vanMaintenanceIcon} style={{ width: 70, height: 70 }} />);
 
     // fetch user detials here
     const fetchUserData = async () => {
-        const {data: {user}} = await supabase.auth.getUser();
+        const { data: { user } } = await supabase.auth.getUser();
         if (user) {
             //console.log('uuid:', user.id);
             setUserId(user.id); // Getting the logged in user
 
-            const {data: profiles, error} = await supabase
+            const { data: profiles, error } = await supabase
                 .from('profiles')
                 .select('*')
                 .eq('id', user.id)
@@ -47,12 +47,12 @@ const Dashboard = ({navigation}) => {
 
                 console.info('profile id: ', profiles.id);
                 const profile_Id = profiles.id
-                setProfileId(profile_Id) // get loggedIn user profile Id
+                setProfileId(profiles.id) // get loggedIn user profile Id
 
                 // for owner & driver
                 if (role_id === 3) {
                     // get owner id and info
-                    let {data: owners, error} = await supabase
+                    let { data: owners, error } = await supabase
                         .from('owners')
                         .select('*')
                         .eq('profile_id', profile_Id)
@@ -69,7 +69,7 @@ const Dashboard = ({navigation}) => {
 
                 // for drivers
                 if (role_id === 4) {
-                    let {data: drivers, error} = await supabase
+                    let { data: drivers, error } = await supabase
                         .from('drivers')
                         .select('*')
                         .eq('profile_id', profile_Id)
@@ -87,7 +87,7 @@ const Dashboard = ({navigation}) => {
 
                 // for owners
                 if (role_id === 2) {
-                    let {data: owners, error} = await supabase
+                    let { data: owners, error } = await supabase
                         .from('owners')
                         .select('*')
                         .eq('profile_id', profile_Id)
@@ -112,13 +112,14 @@ const Dashboard = ({navigation}) => {
     const fetchProfileData = async () => {
         const user = supabase.auth.user();
         if (user) {
-            const {data, error} = await supabase
+            const { data, error } = await supabase
                 .from('profiles')
                 .select('full_name')
                 .eq('id', user.id)
                 .single();
 
-            if (data && !data.required_column) {
+            if (data === 'NULL') {
+                console.log('Profile is not completed')
                 setIsProfileComplete(false);
             }
         }
@@ -128,16 +129,6 @@ const Dashboard = ({navigation}) => {
         fetchUserData();
         fetchProfileData();
     }, []);
-
-    // handle logout here
-    const handleLogout = async () => {
-        await supabase.auth.signOut();
-    };
-
-    // handle navigation
-    const handleNavigation = (screenName, userID) => {
-        navigation.navigate(screenName, {userID})
-    }
 
     return (
         <View className='flex-1'>
@@ -159,7 +150,15 @@ const Dashboard = ({navigation}) => {
 
                 {/* recents button */}
                 <View className='w-4/5 m-auto my-5 flex flex-row items-center justify-evenly'>
-                    <Button icon="arrow-top-right" mode="outlined" onPress={() => console.log('Pressed')}>
+                    <Button
+                        icon="arrow-top-right"
+                        mode="outlined"
+                        onPress={() => navigation.navigate('Profile', {
+                            userId: userId,
+                            roleId: userRole,
+                            profileId: profileId
+                        })}
+                    >
                         Profile
                     </Button>
                     <Button icon="arrow-top-right" mode="outlined" onPress={() => console.log('Pressed')}>
@@ -170,7 +169,7 @@ const Dashboard = ({navigation}) => {
                 <Text variant='titleMedium' className='ml-5'>Management Dashboard</Text>
 
                 {/* logged in user details only for devlopment purpose */}
-{/*                <View className='flex flex-row items-center justify-start'>
+                {/*                <View className='flex flex-row items-center justify-start'>
                     <Text variant='titleMedium' className='ml-5'>user ID: {userRole}</Text>
                     <Text variant='titleMedium' className='ml-5'>owner ID: {ownerId}</Text>
                     <Text variant='titleMedium' className='ml-5'>Role ID: {userRole}</Text>
@@ -433,7 +432,7 @@ const Dashboard = ({navigation}) => {
                 {/* drive dashboard end */}
 
             </View>
-            <StatusBar style="light" backgroundColor={'#324AB2'}/>
+            <StatusBar style="light" backgroundColor={'#324AB2'} />
         </View>
     );
 };

@@ -15,20 +15,34 @@ const StudentList = ({route}) => {
     const [refreshing, setRefreshing] = React.useState();
 
     const fetchStudentDetails = async () => {
-        let {data: students, error} = await supabase
+        let { data: students, error } = await supabase
             .from('students')
             .select('*')
             .eq('owner_id', ownerId);
 
         if (!error) {
-            //console.info('Student details fetched', students);
-            setStudents(students);
-            ToastAndroid.show('Student Fetched!', ToastAndroid.SHORT);
+            ToastAndroid.show('Students Fetched!', ToastAndroid.SHORT);
+
+            const studentsWithProfiles = await Promise.all(students.map(async student => {
+                let { data: profile, error: profile_error } = await supabase
+                    .from('profiles')
+                    .select('username')
+                    .eq('id', student.profile_id)
+                    .single();
+
+                if (profile) {
+                    return { ...student, username: profile.username }; 
+                } else {
+                    return student;
+                }
+            }));
+
+            setStudents(studentsWithProfiles);
         } else {
-            //console.error('Error while fetching student details', error);
             ToastAndroid.show('Error while fetching students!', ToastAndroid.SHORT);
         }
-    }
+    };
+
 
     const deleteStudent = async (id) => {
         const {error} = await supabase
@@ -86,7 +100,7 @@ const StudentList = ({route}) => {
 
                         {students.slice(from, to).map((student) => (
                             <DataTable.Row key={student.id}>
-                                <DataTable.Cell>{student.profile_id}</DataTable.Cell>
+                                <DataTable.Cell>{student.username}</DataTable.Cell>
                                 <DataTable.Cell numeric>
                                     <IconButton
                                         icon='eye'

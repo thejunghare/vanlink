@@ -1,11 +1,11 @@
 import React from 'react';
-import {View, ToastAndroid, StyleSheet, ScrollView} from 'react-native';
-import {Button,} from 'react-native-paper';
-import {Dropdown} from 'react-native-element-dropdown';
-import {supabase} from '../../lib/supabase';
+import { View, ToastAndroid, StyleSheet, ScrollView } from 'react-native';
+import { Button, } from 'react-native-paper';
+import { Dropdown } from 'react-native-element-dropdown';
+import { supabase } from '../../lib/supabase';
 
-const AddStudent = ({route}) => {
-    const {userId, roleId, ownerId} = route.params;
+const AddStudent = ({ route }) => {
+    const { userId, roleId, ownerId } = route.params;
     console.info('user Id:', userId, 'role Id: ', roleId, 'owner Id: ', ownerId);
     // for school
     const [schoolDetails, setSchoolDetails] = React.useState([]);
@@ -18,7 +18,7 @@ const AddStudent = ({route}) => {
     const [selectedProfile, setSelectedProfile] = React.useState([]);
 
     const fetchProfiles = async () => {
-        let {data: profiles, error} = await supabase
+        let { data: profiles, error } = await supabase
             .from('profiles')
             .select('*')
             .eq('role_id', 5);
@@ -29,7 +29,7 @@ const AddStudent = ({route}) => {
             ToastAndroid.show('Profiles fetched!', ToastAndroid.SHORT);
 
             const mappedProfiles = profiles.map(profile => ({
-                label: profile.student_gr,
+                label: profile.username,
                 value: profile.id,
             }));
             setProfileDetails(mappedProfiles);
@@ -40,7 +40,7 @@ const AddStudent = ({route}) => {
     };
 
     const fetchSchool = async () => {
-        let {data: schools, error} = await supabase
+        let { data: schools, error } = await supabase
             .from('schools')
             .select('*')
             .eq('owner_id', ownerId);
@@ -62,26 +62,36 @@ const AddStudent = ({route}) => {
     };
 
     const fetchDrivers = async () => {
-        let {data: drivers, error} = await supabase
+        let { data: drivers, error } = await supabase
             .from('drivers')
             .select('*')
             .eq('employer_id', ownerId);
 
         if (drivers) {
-            //console.info('profiles fetched', schools);
-            //setSchoolDetails(schools);
-            ToastAndroid.show('Schools fetched!', ToastAndroid.SHORT);
+            ToastAndroid.show('Drivers fetched!', ToastAndroid.SHORT);
 
-            const mappedDrivers = drivers.map(driver => ({
-                label: driver.profile_id,
-                value: driver.id,
+            // Fetch profiles for each driver
+            const profiles = await Promise.all(drivers.map(async driver => {
+                let { data: profile, error: profile_error } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', driver.profile_id)
+                    .single();
+                return { ...driver, profile }; // Merge driver and profile data
             }));
+
+            const mappedDrivers = profiles.map(driver => ({
+                label: driver.profile.username, // Profile username
+                value: driver.id, // Driver id
+            }));
+
             setDriverDetails(mappedDrivers);
         } else {
-            // console.error('error while fetching schools', error);
-            ToastAndroid.show('Schools fetched!', ToastAndroid.SHORT);
+            ToastAndroid.show('Error fetching drivers', ToastAndroid.SHORT);
         }
     };
+
+
 
     React.useEffect(() => {
         fetchProfiles();
@@ -90,7 +100,7 @@ const AddStudent = ({route}) => {
     }, []);
 
     const insertStudentDetails = async () => {
-        const {error} = await supabase
+        const { error } = await supabase
             .from('students')
             .insert([
                 {

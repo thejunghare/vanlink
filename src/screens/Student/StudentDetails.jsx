@@ -7,21 +7,33 @@ const StudentDetails = ({ route }) => {
     return (
         <View className={'flex-1 p-3'}>
             {/* student id */}
-            <View className={'my-2 flex flex-row items-center justify-between'}>
+            {/* <View className={'my-2 flex flex-row items-center justify-between'}>
                 <Text className={'text-base font-semibold'}>Student ID</Text>
                 <Text className={'text-base font-normal'}>{student.id ? student.id : '-'}</Text>
-            </View>
+            </View> */}
 
             {/* student name */}
             <View className={'my-2 flex flex-row items-center justify-between'}>
                 <Text className={'text-base font-semibold'}>Student Name</Text>
-                <Text className={'text-base font-normal'}>{student.fullname ? student.fullname : '-'}</Text>
+                <Text className={'text-base font-normal'}>{student.full_name ? student.full_name : '-'}</Text>
             </View>
 
-            {/* student std & division */}
+            {/* student upi number */}
             <View className={'my-2 flex flex-row items-center justify-between'}>
-                <Text className={'text-base font-semibold'}>STD & Division</Text>
-                <Text className={'text-base font-normal'}>{student.student_division ? student.student_fees : '-'}</Text>
+                <Text className={'text-base font-semibold'}>UPI</Text>
+                <Text className={'text-base font-normal'}>{student.upi_number ? student.upi_number : '-'}</Text>
+            </View>
+
+            {/* student std  */}
+            <View className={'my-2 flex flex-row items-center justify-between'}>
+                <Text className={'text-base font-semibold'}>Standard</Text>
+                <Text className={'text-base font-normal'}>{student.student_std ? student.student_std : '-'}</Text>
+            </View>
+
+            {/* student division */}
+            <View className={'my-2 flex flex-row items-center justify-between'}>
+                <Text className={'text-base font-semibold'}>Division</Text>
+                <Text className={'text-base font-normal'}>{student.student_division ? student.student_division : '-'}</Text>
             </View>
 
             {/* student addressx*/}

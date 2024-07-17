@@ -26,12 +26,12 @@ const StudentList = ({route}) => {
             const studentsWithProfiles = await Promise.all(students.map(async student => {
                 let { data: profile, error: profile_error } = await supabase
                     .from('profiles')
-                    .select('username')
+                    .select('*')
                     .eq('id', student.profile_id)
                     .single();
 
                 if (profile) {
-                    return { ...student, username: profile.username }; 
+                    return { ...student, ...profile };
                 } else {
                     return student;
                 }

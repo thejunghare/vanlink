@@ -151,33 +151,33 @@ const ListPaymentDetails = ({ route }) => {
             <View className='h-screen flex justify-evenly'>
                 <View className='h-3/4'>
                     {/* month year date picker */}
-                    {/*<View className='bg-white m-2'>
-                         <TouchableOpacity onPress={() => showPicker(true)}>
-                            <TextInput
-                                style={{ height: 40, borderColor: 'gray', borderWidth: 1, padding: 10 }}
-                                value={selectedDate}
-                                editable={false}
+                    <View className='bg-white m-2'>
+                        {/* <TouchableOpacity onPress={() => showPicker(true)}>
+                <TextInput
+                    style={{ height: 40, borderColor: 'gray', borderWidth: 1, padding: 10 }}
+                    value={selectedDate}
+                    editable={false}
+                />
+            </TouchableOpacity>
+            {show && (
+                <Modal transparent={true} animationType="slide">
+                    <TouchableOpacity
+                        style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+                        activeOpacity={1}
+                        onPressOut={() => setShow(false)}
+                    >
+                        <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 10 }}>
+                            <MonthPicker
+                                onChange={onValueChange}
+                                value={date}
+                                minimumDate={new Date()}
+                                maximumDate={new Date(2025, 5)}
+                                locale="en"
                             />
-                        </TouchableOpacity>
-                        {show && (
-                            <Modal transparent={true} animationType="slide">
-                                <TouchableOpacity
-                                    style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
-                                    activeOpacity={1}
-                                    onPressOut={() => setShow(false)}
-                                >
-                                    <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 10 }}>
-                                        <MonthPicker
-                                            onChange={onValueChange}
-                                            value={date}
-                                            minimumDate={new Date()}
-                                            maximumDate={new Date(2025, 5)}
-                                            locale="en"
-                                        />
-                                    </View>
-                                </TouchableOpacity>
-                            </Modal>
-                        )}
+                        </View>
+                    </TouchableOpacity>
+                </Modal>
+            )} */}
 
                         <Dropdown
                             style={[styles.dropdown]}
@@ -196,7 +196,7 @@ const ListPaymentDetails = ({ route }) => {
                                 setSelectedSchool(item.value);
                             }}
                         />
-                    </View>*/}
+                    </View>
 
                     {/* select month */}
                     <View className='flex flex-row items-center justify-between'>

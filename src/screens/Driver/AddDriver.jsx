@@ -25,7 +25,7 @@ const AddDriver = ({ route }) => {
             ToastAndroid.show('Profiles fetched!', ToastAndroid.SHORT);
 
             const mappedProfiles = profiles.map(profile => ({
-                label: profile.license_number,
+                label: profile.username,
                 value: profile.id,
             }));
             setProfilesDetails(mappedProfiles);

@@ -18,27 +18,63 @@ const DriverList = ({ route }) => {
     const [refreshing, setRefreshing] = React.useState();
 
     const fetchDrivers = async () => {
-        const { data: { user }, } = await supabase.auth.getUser();
-        console.info('loggedInUserId', user.id);
+        try {
+            
+            const { data: { user }, error: userError } = await supabase.auth.getUser();
+            if (userError) throw userError;
+            console.info('loggedInUserId', user.id);
 
-        const { data: drivers, error: error } = await supabase
-            .from('drivers')
-            .select('*')
-            .eq('employer_id', ownerId); // employer ID(owner Id)
 
-        if (error) {
-            console.error("Error fetching drivers:", error);
-            ToastAndroid.show('error fetching drivers!', ToastAndroid.SHORT);
-            return;
-        }
+            const { data: drivers, error: driversError } = await supabase
+                .from('drivers')
+                .select('*')
+                .eq('employer_id', ownerId); // employer ID(owner Id)
 
-        if (drivers) {
-            setDrivers(drivers);
+            if (driversError) {
+                console.error("Error fetching drivers:", driversError);
+                ToastAndroid.show('Error fetching drivers!', ToastAndroid.SHORT);
+                return;
+            }
+
+            if (drivers.length === 0) {
+                console.info("No drivers found.");
+                ToastAndroid.show('No drivers found!', ToastAndroid.SHORT);
+                return;
+            }
+
+
+            const profileIds = drivers.map(driver => driver.profile_id);
+            const { data: profiles, error: profilesError } = await supabase
+                .from('profiles')
+                .select('*')
+                .in('id', profileIds);
+
+            if (profilesError) {
+                console.error("Error fetching profiles:", profilesError);
+                ToastAndroid.show('Error fetching profiles!', ToastAndroid.SHORT);
+                return;
+            }
+
+
+            const combinedDrivers = drivers.map(driver => {
+                const profile = profiles.find(profile => profile.id === driver.profile_id);
+                return {
+                    ...driver,
+                    username: profile ? profile.username : null,
+                };
+            });
+
+            //  combined
+            setDrivers(combinedDrivers);
+            console.info('Drivers fetched!', combinedDrivers);
             ToastAndroid.show('Drivers fetched!', ToastAndroid.SHORT);
-            drivers.forEach((driver) => console.log(driver.profile_id));
-            drivers.forEach((driver) => console.log(driver.id));
+
+        } catch (error) {
+            console.error("Error:", error);
+            ToastAndroid.show('Error occurred!', ToastAndroid.SHORT);
         }
     };
+
 
     React.useEffect(() => {
         fetchDrivers();
@@ -101,7 +137,7 @@ const DriverList = ({ route }) => {
 
                         {drivers.slice(from, to).map((driver) => (
                             <DataTable.Row key={driver.id}>
-                                <DataTable.Cell>{driver.profile_id}</DataTable.Cell>
+                                <DataTable.Cell>{driver.username}</DataTable.Cell>
                                 <DataTable.Cell numeric>
                                     <IconButton
                                         icon='eye'

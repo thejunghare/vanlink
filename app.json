@@ -2,12 +2,12 @@
   "expo": {
     "name": "School Bus",
     "slug": "VanLink",
-    "version": "1.0.0",
+    "version": "1.0.5",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/vanlink_app_icon.jpg",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/vanlink_app_icon.jpg",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },

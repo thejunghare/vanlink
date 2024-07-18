@@ -4,16 +4,21 @@ import AppStack from './AppStack';
 import AuthStack from './AuthStack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '../lib/supabase';
+import { ActivityIndicator, View } from 'react-native';
 
 const RootNavigator = () => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const getUser = async () => {
       const session = await AsyncStorage.getItem('supabaseSession');
       if (session) {
-        setUser(JSON.parse(session).user);
+        const parsedSession = JSON.parse(session);
+        const { data: { user } } = await supabase.auth.setSession(parsedSession);
+        setUser(user);
       }
+      setLoading(false);
     };
 
     getUser();
@@ -34,6 +39,14 @@ const RootNavigator = () => {
       authListener.unsubscribe();
     };
   }, []);
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
 
   return (
     <NavigationContainer>

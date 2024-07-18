@@ -49,75 +49,77 @@ const ProfileScreen = ({ route }) => {
             refreshControl={
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }>
-            {/*username*/}
-            <TextInput
-                label="Username"
-                value={userUserName}
-                mode={'outlined'}
-                className={'my-3'}
-            />
-
-            {/*full name*/}
-            <TextInput
-                label="Full Name"
-                value={userFullName}
-                mode={'outlined'}
-                className={'my-3'}
-            />
-
-            {/*upi number*/}
-            <TextInput
-                label="UPI Number"
-                value={userUpiNumber}
-                mode={'outlined'}
-                className={'my-3'}
-            />
-
-            {/*license number*/}
-            {roleId === 3 && (
+            <View>
+                {/*username*/}
                 <TextInput
-                    label="License Number"
-                    value={userLicenseNumber}
+                    label="Username"
+                    value={userUserName}
                     mode={'outlined'}
                     className={'my-3'}
                 />
-            )}
 
-            {/*student standard*/}
-            {roleId === 5 && (
+                {/*full name*/}
                 <TextInput
-                    label="Standard"
+                    label="Full Name"
+                    value={userFullName}
                     mode={'outlined'}
                     className={'my-3'}
                 />
-            )}
 
-            {/*student division*/}
-            {roleId === 5 && (
+                {/*upi number*/}
                 <TextInput
-                    label="Division"
+                    label="UPI Number"
+                    value={userUpiNumber}
                     mode={'outlined'}
                     className={'my-3'}
                 />
-            )}
 
-            {/*student gr*/}
-            {roleId === 5 && (
-                <TextInput
-                    label="GR Number"
-                    mode={'outlined'}
-                    className={'my-3'}
-                />
-            )}
+                {/*license number*/}
+                {roleId === 3 && (
+                    <TextInput
+                        label="License Number"
+                        value={userLicenseNumber}
+                        mode={'outlined'}
+                        className={'my-3'}
+                    />
+                )}
 
-            {/*student shift*/}
-            {roleId === 5 && (
-                <TextInput
-                    label="Shift"
-                    mode={'outlined'}
-                    className={'my-3'}
-                />
-            )}
+                {/*student standard*/}
+                {roleId === 5 && (
+                    <TextInput
+                        label="Standard"
+                        mode={'outlined'}
+                        className={'my-3'}
+                    />
+                )}
+
+                {/*student division*/}
+                {roleId === 5 && (
+                    <TextInput
+                        label="Division"
+                        mode={'outlined'}
+                        className={'my-3'}
+                    />
+                )}
+
+                {/*student gr*/}
+                {roleId === 5 && (
+                    <TextInput
+                        label="GR Number"
+                        mode={'outlined'}
+                        className={'my-3'}
+                    />
+                )}
+
+                {/*student shift*/}
+                {roleId === 5 && (
+                    <TextInput
+                        label="Shift"
+                        mode={'outlined'}
+                        className={'my-3'}
+                    />
+                )}
+            </View>
         </ScrollView>
     );
 };

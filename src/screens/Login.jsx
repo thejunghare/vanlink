@@ -3,7 +3,8 @@ import { View, ToastAndroid } from 'react-native';
 import { supabase } from '../lib/supabase';
 import { Text, TextInput, Button } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Login = ({ navigation }) => {
     const [email, setEmail] = React.useState('');
@@ -13,11 +14,13 @@ const Login = ({ navigation }) => {
     const handleLogin = async () => {
         setLoading(true);
 
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error, session } = await supabase.auth.signInWithPassword({ email, password });
         if (error) {
             // console.error(error);
             setLoading(false);
             ToastAndroid.show('Invalid username or password', ToastAndroid.SHORT);
+        } else {
+            await AsyncStorage.setItem('supabaseSession', JSON.stringify(session));
         }
     };
 
@@ -53,7 +56,7 @@ const Login = ({ navigation }) => {
 
                     <View>
                         <Button icon='login' mode='contained' onPress={handleLogin}>
-                           {loading? 'Logging In...' : 'Log In'}
+                            {loading ? 'Logging In...' : 'Log In'}
                         </Button>
                     </View>
                 </View>

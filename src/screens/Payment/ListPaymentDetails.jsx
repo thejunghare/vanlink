@@ -1,27 +1,30 @@
 import React from 'react';
-import {View, RefreshControl, ScrollView, ToastAndroid, StyleSheet} from 'react-native';
-import {Button, DataTable, TextInput} from 'react-native-paper';
-import {useNavigation} from '@react-navigation/native';
-import {Dropdown} from 'react-native-element-dropdown';
-import {supabase} from '../../lib/supabase';
+import { View, RefreshControl, ScrollView, ToastAndroid, StyleSheet, TouchableOpacity, Text, Modal } from 'react-native';
+import { Button, DataTable, TextInput } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
+import { Dropdown } from 'react-native-element-dropdown';
+import { supabase } from '../../lib/supabase';
+import MonthPicker from 'react-native-month-year-picker';
+import moment from 'moment';
+import { color } from '@rneui/themed/dist/config';
 
 const months = [
-    {label: 'January', value: '1'},
-    {label: 'February', value: '2'},
-    {label: 'March', value: '3'},
-    {label: 'April', value: '4'},
-    {label: 'May', value: '5'},
-    {label: 'June', value: '6'},
-    {label: 'July', value: '7'},
-    {label: 'August', value: '8'},
-    {label: 'September', value: '9'},
-    {label: 'October', value: '10'},
-    {label: 'November', value: '11'},
-    {label: 'December', value: '12'},
+    { label: 'January', value: '1' },
+    { label: 'February', value: '2' },
+    { label: 'March', value: '3' },
+    { label: 'April', value: '4' },
+    { label: 'May', value: '5' },
+    { label: 'June', value: '6' },
+    { label: 'July', value: '7' },
+    { label: 'August', value: '8' },
+    { label: 'September', value: '9' },
+    { label: 'October', value: '10' },
+    { label: 'November', value: '11' },
+    { label: 'December', value: '12' },
 ];
 
-const ListPaymentDetails = ({route}) => {
-    const {roleId, userId, ownerId, driverId} = route.params;
+const ListPaymentDetails = ({ route }) => {
+    const { roleId, userId, ownerId, driverId } = route.params;
     console.log(ownerId, driverId);
     const navigation = useNavigation();
     const [page, setPage] = React.useState(0);
@@ -37,8 +40,25 @@ const ListPaymentDetails = ({route}) => {
     // collection year
     const [collectionYear, setCollectionYear] = React.useState('');
 
+    // for month year picker
+    const [date, setDate] = React.useState(new Date());
+    const [show, setShow] = React.useState(false);
+    const [selectedDate, setSelectedDate] = React.useState(moment().format('YYYY-MM'));
+
+    const showPicker = (value) => {
+        setShow(value);
+    };
+
+    const onValueChange = (event, newDate) => {
+        const selected = newDate || date;
+        setShow(false);
+        setDate(selected);
+        setSelectedDate(moment(selected).format('YYYY-MM'));
+    };
+
+    //
     const fetchSchools = async () => {
-        let {data: schools, error} = await supabase
+        let { data: schools, error } = await supabase
             .from('schools')
             .select('*')
             .eq('owner_id', ownerId);
@@ -62,7 +82,7 @@ const ListPaymentDetails = ({route}) => {
     }
 
     const fetchFeesDetails = async () => {
-        let {data: feesDetails, error} = await supabase
+        let { data: feesDetails, error } = await supabase
             .from('student_fees_collection')
             .select('*')
             .eq('owner_id', ownerId)
@@ -71,11 +91,38 @@ const ListPaymentDetails = ({route}) => {
 
         if (feesDetails) {
             console.log('Details fetched!');
-            setCollectionDetails(feesDetails);
+
+            const feesWithDetails = await Promise.all(feesDetails.map(async fee => {
+                let { data: student, error: student_error } = await supabase
+                    .from('students')
+                    .select('*')
+                    .eq('id', fee.student_id)
+                    .single();
+
+                if (student) {
+
+                    let { data: profile, error: profile_error } = await supabase
+                        .from('profiles')
+                        .select('*')
+                        .eq('id', student.profile_id)
+                        .single();
+
+                    if (profile) {
+                        return { ...fee, student, profile };
+                    } else {
+                        return { ...fee, student };
+                    }
+                } else {
+                    return fee;
+                }
+            }));
+
+            setCollectionDetails(feesWithDetails);
         } else {
             console.error('Failed to fetch details', error);
         }
-    }
+    };
+
 
     const onRefresh = React.useCallback(() => {
         setRefreshing(true);
@@ -98,13 +145,40 @@ const ListPaymentDetails = ({route}) => {
     return (
         <ScrollView
             refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }
         >
             <View className='h-screen flex justify-evenly'>
                 <View className='h-3/4'>
-                    {/* select school */}
-                    <View className='bg-white m-2'>
+                    {/* month year date picker */}
+                    {/*<View className='bg-white m-2'>
+                         <TouchableOpacity onPress={() => showPicker(true)}>
+                            <TextInput
+                                style={{ height: 40, borderColor: 'gray', borderWidth: 1, padding: 10 }}
+                                value={selectedDate}
+                                editable={false}
+                            />
+                        </TouchableOpacity>
+                        {show && (
+                            <Modal transparent={true} animationType="slide">
+                                <TouchableOpacity
+                                    style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+                                    activeOpacity={1}
+                                    onPressOut={() => setShow(false)}
+                                >
+                                    <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 10 }}>
+                                        <MonthPicker
+                                            onChange={onValueChange}
+                                            value={date}
+                                            minimumDate={new Date()}
+                                            maximumDate={new Date(2025, 5)}
+                                            locale="en"
+                                        />
+                                    </View>
+                                </TouchableOpacity>
+                            </Modal>
+                        )}
+
                         <Dropdown
                             style={[styles.dropdown]}
                             placeholderStyle={styles.placeholderStyle}
@@ -122,7 +196,7 @@ const ListPaymentDetails = ({route}) => {
                                 setSelectedSchool(item.value);
                             }}
                         />
-                    </View>
+                    </View>*/}
 
                     {/* select month */}
                     <View className='flex flex-row items-center justify-between'>
@@ -168,9 +242,9 @@ const ListPaymentDetails = ({route}) => {
                         </DataTable.Header>
 
                         {collectionDetails.slice(from, to).map((item) => (
-                            <DataTable.Row key={item.key}>
-                                <DataTable.Cell>{item.id}</DataTable.Cell>
-                                <DataTable.Cell>
+                            <DataTable.Row key={item.id}>
+                                <DataTable.Cell>{item.profile.username}</DataTable.Cell>
+                                <DataTable.Cell textStyle={{ color: 'white', fontWeight: '500', textAlign: 'center', }} style={item.total_fees === item.collection ? styles.paid : styles.unpaid}>
                                     {item.total_fees === item.collection ? 'Paid' : 'Unpaid'}
                                 </DataTable.Cell>
                             </DataTable.Row>
@@ -241,6 +315,13 @@ const styles = StyleSheet.create({
     inputSearchStyle: {
         height: 40,
         fontSize: 16,
+    },
+    paid: {
+        backgroundColor: 'green',
+        color: 'white',
+    },
+    unpaid: {
+        backgroundColor: 'red',
     },
 });
 

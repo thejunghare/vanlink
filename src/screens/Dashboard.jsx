@@ -167,7 +167,7 @@ const Dashboard = ({ navigation }) => {
                 </View>
 
                 <Text variant='titleMedium' className='ml-5'>Management Dashboard</Text>
-
+                
                 {/* logged in user details only for devlopment purpose */}
                 {/*                <View className='flex flex-row items-center justify-start'>
                     <Text variant='titleMedium' className='ml-5'>user ID: {userRole}</Text>

@@ -1,11 +1,11 @@
 import React from 'react';
-import {View, RefreshControl, ScrollView, ToastAndroid} from 'react-native';
-import {Text, Button, DataTable, IconButton, Searchbar,} from 'react-native-paper';
-import {useNavigation} from '@react-navigation/native';
-import {supabase} from '../../lib/supabase';
+import { View, RefreshControl, ScrollView, ToastAndroid } from 'react-native';
+import { Text, Button, DataTable, IconButton, Searchbar, } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
+import { supabase } from '../../lib/supabase';
 
-const VehicleMaintenanceRecordList = ({route}) => {
-    const {userId, roleId, ownerId, driverId} = route.params;
+const VehicleMaintenanceRecordList = ({ route }) => {
+    const { userId, roleId, ownerId, driverId } = route.params;
     // console.log(userId, roleId, ownerId);
     const navigation = useNavigation();
     const [searchQuery, setSearchQuery] = React.useState("");
@@ -16,23 +16,45 @@ const VehicleMaintenanceRecordList = ({route}) => {
     const [refreshing, setRefreshing] = React.useState();
 
     const fetchVehicleMaintenancetRecord = async () => {
-        let {data: vehicle_maintenance_record, error} = await supabase
-            .from('vehicle_maintenance_record')
-            .select('*')
-            .eq('owner_id', ownerId);
+        try {
+            // Step 1: Fetch vehicle maintenance records
+            let { data: vehicleMaintenanceRecords, error } = await supabase
+                .from('vehicle_maintenance_record')
+                .select('*')
+                .eq('owner_id', ownerId);
 
-        if (vehicle_maintenance_record) {
-            console.info('Records fetched!', vehicle_maintenance_record);
-            setVehicleRecords(vehicle_maintenance_record);
+            if (error) throw error;
+
+            // Step 2: Fetch vehicle numbers for the fetched vehicle IDs
+            const vehicleIds = vehicleMaintenanceRecords.map(record => record.vehicle_id);
+            let { data: vehicles, vehicleError } = await supabase
+                .from('vehicles')
+                .select('id, vehicle_number')
+                .in('id', vehicleIds);
+
+            if (vehicleError) throw vehicleError;
+
+            // Step 3: Combine results
+            const combinedRecords = vehicleMaintenanceRecords.map(record => {
+                const vehicle = vehicles.find(v => v.id === record.vehicle_id);
+                return {
+                    ...record,
+                    vehicle_number: vehicle ? vehicle.vehicle_number : null,
+                };
+            });
+
+            console.info('Records fetched!', combinedRecords);
+            setVehicleRecords(combinedRecords);
             ToastAndroid.show('Records fetched!', ToastAndroid.SHORT);
-        } else {
-            console.info('Failed to fetch records!', error);
+        } catch (error) {
+            console.error('Failed to fetch records!', error);
             ToastAndroid.show('Failed to fetch records!', ToastAndroid.SHORT);
         }
-    }
+    };
+
 
     const deleteVehicle = async (id) => {
-        const {error} = await supabase
+        const { error } = await supabase
             .from('vehicle_maintenance_record')
             .delete()
             .eq('id', id);
@@ -66,7 +88,7 @@ const VehicleMaintenanceRecordList = ({route}) => {
         <ScrollView
             className={'flex-1'}
             refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }>
 
             <View className='h-screen flex justify-evenly'>
@@ -82,19 +104,19 @@ const VehicleMaintenanceRecordList = ({route}) => {
                     <DataTable>
                         {vehiclesRecords.slice(from, to).map((vehiclesRecord) => (
                             <DataTable.Row key={vehiclesRecord.id}>
-                                <DataTable.Cell>{vehiclesRecord.maintenance_date}</DataTable.Cell>
+                                <DataTable.Cell>{vehiclesRecord.vehicle_number}</DataTable.Cell>
                                 <DataTable.Cell numeric>
                                     <IconButton
                                         icon='eye'
                                         onPress={() =>
-                                            navigation.navigate('Vehicel Maintenance Record Details', {vehiclesRecord})
+                                            navigation.navigate('Vehicel Maintenance Record Details', { vehiclesRecord })
                                         }
                                     />
 
                                     <IconButton
                                         icon='pencil'
                                         onPress={() =>
-                                            navigation.navigate('Add Vehicle', {itemId: vehiclesRecord.id})
+                                            navigation.navigate('Add Vehicle', { itemId: vehiclesRecord.id })
                                         }
                                     />
 

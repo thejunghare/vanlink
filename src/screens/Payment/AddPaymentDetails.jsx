@@ -64,22 +64,44 @@ const AddPaymentDetails = ({route}) => {
             .eq('owner_id', ownerId);
 
         if (error) {
-            //console.error("Error fetching students:", error);
-            ToastAndroid.show('error fetching schools !', ToastAndroid.SHORT);
+            ToastAndroid.show('error fetching schools!', ToastAndroid.SHORT);
             return;
         }
 
         if (students) {
-            //console.info('Student fetched', students);
             ToastAndroid.show('Students Fetched!', ToastAndroid.SHORT);
-            const mappedStudent = students.map(student => ({
-                label: student.profile_id,
-                value: student.id,
-            }));
 
-            setStudentDetails(mappedStudent)
+            // Fetch profile details for each student
+            const profileIds = students.map(student => student.profile_id);
+            let {data: profiles, error: profilesError} = await supabase
+                .from('profiles')
+                .select('*')
+                .in('id', profileIds);
+
+            if (profilesError) {
+                ToastAndroid.show('Error fetching profiles!', ToastAndroid.SHORT);
+                return;
+            }
+
+            if (profiles) {
+                const mappedStudent = students.map(student => {
+                    const profile = profiles.find(profile => profile.id === student.profile_id);
+                    console.log('Hello', profile.student_total_fees)
+                    return {
+                        label: profile.username,
+                        value: student.id,
+                        profileDetails: profile,
+                    };
+                });
+
+                setStudentDetails(mappedStudent);
+
+                //const totalFees = profiles.reduce((sum, profile) =>  profile.student_total_fees);
+                //setTotalFees(totalFees.toString());
+            }
         }
     }
+
 
     const resetFields = () => {
         setSelectedSchool([]);
@@ -161,6 +183,8 @@ const AddPaymentDetails = ({route}) => {
                         value={selectedStudent}
                         onChange={item => {
                             setSelectedStudent(item.value);
+                            const selectedStudentProfile = studentDetails.find(student => student.value === item.value).profileDetails;
+                            setTotalFees(selectedStudentProfile ? selectedStudentProfile.student_total_fees.toString() : '');
                         }}
                     />
                 </View>

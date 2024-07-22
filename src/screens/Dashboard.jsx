@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Image, } from 'react-native';
-import { supabase } from '../lib/supabase';
-import { Searchbar, Button, Text, IconButton } from 'react-native-paper';
-import { StatusBar } from 'expo-status-bar';
+import {View, Image,} from 'react-native';
+import {supabase} from '../lib/supabase';
+import {Searchbar, Button, Text, IconButton} from 'react-native-paper';
+import {StatusBar} from 'expo-status-bar';
 import driverIcon from '../../assets/icons/driver.png';
 import vanMaintenanceIcon from '../../assets/icons/van.png';
 import schoolIcon from '../../assets/icons/school.png';
@@ -10,7 +10,7 @@ import studentIcon from '../../assets/icons/students.png';
 import moneyIcon from '../../assets/icons/money.png';
 import vehicleIcon from '../../assets/icons/vehicle.png';
 
-const Dashboard = ({ navigation }) => {
+const Dashboard = ({navigation}) => {
     const [searchQuery, setSearchQuery] = React.useState('');
     const [isProfileComplete, setIsProfileComplete] = React.useState(true);
     const [userRole, setUserRole] = React.useState(null);
@@ -20,21 +20,21 @@ const Dashboard = ({ navigation }) => {
     const [driverEmployerId, setDriverEmployerId] = React.useState('');
     const [driverId, setDriverId] = React.useState('');
     const [ownerWithDriverId, setOwnerWithDriverId] = React.useState('');
-    const CustomVehicleIcon = () => (<Image source={vehicleIcon} style={{ width: 70, height: 70 }} />);
-    const CustomDriverIcon = () => (<Image source={driverIcon} style={{ width: 70, height: 70 }} />);
-    const CustomSchoolIcon = () => (<Image source={schoolIcon} style={{ width: 70, height: 70 }} />);
-    const CustomStudentIcon = () => (<Image source={studentIcon} style={{ width: 70, height: 70 }} />);
-    const CustomMoneyIcon = () => (<Image source={moneyIcon} style={{ width: 70, height: 70 }} />);
-    const CustomMaintenanceIcon = () => (<Image source={vanMaintenanceIcon} style={{ width: 70, height: 70 }} />);
+    const CustomVehicleIcon = () => (<Image source={vehicleIcon} style={{width: 70, height: 70}}/>);
+    const CustomDriverIcon = () => (<Image source={driverIcon} style={{width: 70, height: 70}}/>);
+    const CustomSchoolIcon = () => (<Image source={schoolIcon} style={{width: 70, height: 70}}/>);
+    const CustomStudentIcon = () => (<Image source={studentIcon} style={{width: 70, height: 70}}/>);
+    const CustomMoneyIcon = () => (<Image source={moneyIcon} style={{width: 70, height: 70}}/>);
+    const CustomMaintenanceIcon = () => (<Image source={vanMaintenanceIcon} style={{width: 70, height: 70}}/>);
 
     // fetch user detials here
     const fetchUserData = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
+        const {data: {user}} = await supabase.auth.getUser();
         if (user) {
             //console.log('uuid:', user.id);
             setUserId(user.id); // Getting the logged in user
 
-            const { data: profiles, error } = await supabase
+            const {data: profiles, error} = await supabase
                 .from('profiles')
                 .select('*')
                 .eq('id', user.id)
@@ -52,7 +52,7 @@ const Dashboard = ({ navigation }) => {
                 // for owner & driver
                 if (role_id === 3) {
                     // get owner id and info
-                    let { data: owners, error } = await supabase
+                    let {data: owners, error} = await supabase
                         .from('owners')
                         .select('*')
                         .eq('profile_id', profile_Id)
@@ -69,7 +69,7 @@ const Dashboard = ({ navigation }) => {
 
                 // for drivers
                 if (role_id === 4) {
-                    let { data: drivers, error } = await supabase
+                    let {data: drivers, error} = await supabase
                         .from('drivers')
                         .select('*')
                         .eq('profile_id', profile_Id)
@@ -87,7 +87,7 @@ const Dashboard = ({ navigation }) => {
 
                 // for owners
                 if (role_id === 2) {
-                    let { data: owners, error } = await supabase
+                    let {data: owners, error} = await supabase
                         .from('owners')
                         .select('*')
                         .eq('profile_id', profile_Id)
@@ -112,7 +112,7 @@ const Dashboard = ({ navigation }) => {
     const fetchProfileData = async () => {
         const user = supabase.auth.user();
         if (user) {
-            const { data, error } = await supabase
+            const {data, error} = await supabase
                 .from('profiles')
                 .select('full_name')
                 .eq('id', user.id)
@@ -140,13 +140,13 @@ const Dashboard = ({ navigation }) => {
                     </Text>
                 )}
 
-                {/* search bar */}
-                <Searchbar
+                {/* search bar hidden for first `release` */}
+                {/* <Searchbar
                     placeholder="Search"
                     onChangeText={setSearchQuery}
                     value={searchQuery}
                     className='mx-5 mb-0 mt-5'
-                />
+                />*/}
 
                 {/* recents button */}
                 <View className='w-4/5 m-auto my-5 flex flex-row items-center justify-evenly'>
@@ -167,7 +167,7 @@ const Dashboard = ({ navigation }) => {
                 </View>
 
                 <Text variant='titleMedium' className='ml-5'>Management Dashboard</Text>
-                
+
                 {/* logged in user details only for devlopment purpose */}
                 {/*                <View className='flex flex-row items-center justify-start'>
                     <Text variant='titleMedium' className='ml-5'>user ID: {userRole}</Text>
@@ -432,7 +432,7 @@ const Dashboard = ({ navigation }) => {
                 {/* drive dashboard end */}
 
             </View>
-            <StatusBar style="light" backgroundColor={'#324AB2'} />
+            <StatusBar style="light" backgroundColor={'#324AB2'}/>
         </View>
     );
 };

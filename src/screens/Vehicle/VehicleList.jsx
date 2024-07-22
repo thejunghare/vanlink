@@ -11,8 +11,8 @@ const Vehicles = ({route}) => {
     const navigation = useNavigation();
     const [searchQuery, setSearchQuery] = React.useState("");
     const [page, setPage] = React.useState(0);
-    const [numberOfItemsPerPageList] = React.useState([2, 3, 4]);
-    const [itemsPerPage, onItemsPerPageChange] = React.useState(numberOfItemsPerPageList[0]);
+    const [numberOfItemsPerPageList] = React.useState([2, 4, 6, 8, 10]);
+    const [itemsPerPage, setItemsPerPage] = React.useState(numberOfItemsPerPageList[0]);
     const [vehicles, setVehicles] = React.useState([]);
     const [refreshing, setRefreshing] = React.useState();
 
@@ -65,10 +65,6 @@ const Vehicles = ({route}) => {
             fetchVehicles().finally(() => setRefreshing(false));
         }, 2000);
     })
-
-    React.useEffect(() => {
-        setPage(0);
-    }, [itemsPerPage]);
 
     React.useEffect(() => {
         setPage(0);
@@ -130,7 +126,7 @@ const Vehicles = ({route}) => {
                             label={`${from + 1}-${to} of ${vehicles.length}`}
                             numberOfItemsPerPageList={numberOfItemsPerPageList}
                             numberOfItemsPerPage={itemsPerPage}
-                            onItemsPerPageChange={onItemsPerPageChange}
+                            onItemsPerPageChange={setItemsPerPage}
                             showFastPaginationControls
                             selectPageDropdownLabel={'Rows per page'}
                         />
